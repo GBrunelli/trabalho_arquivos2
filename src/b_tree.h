@@ -3,7 +3,9 @@
 
 #include "project.h"
 
+#define ORDER 5
+
 typedef struct _BTreeHeader BTreeHeader;
-typedef struct _BTreeRegister BTreeRegister
+typedef struct _BTreeRegister BTreeRegister;
 
 #endif

@@ -17,8 +17,8 @@ struct _BTreeRegister
     int32_t RRNdoNo;            // 4 bytes
 
     // data
-    int32_t P[5];               // 20 bytes
-    int32_t C[4];               // 16 bytes
-    int64_t Pr[4]               // 32 bytes
+    int32_t P[ORDER];           // 20 bytes
+    int32_t C[ORDER-1];         // 16 bytes
+    int64_t Pr[ORDER-1]         // 32 bytes
 };                              // 77 bytes
 
