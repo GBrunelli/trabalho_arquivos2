@@ -16,6 +16,9 @@ typedef enum _Result
 
 typedef struct _BTreeHeader BTreeHeader;
 typedef struct _BTreeNode BTreeNode;
+typedef struct _IndexFile IndexFile;
+
+BTreeNode newBTreeNode();
 
 Result insertRegister(const int32_t key);
 
