@@ -1,6 +1,8 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include "project.h"
+int convertePrefixo(char* str);
+void binarioNaTela(char *nomeArquivoBinario);
+void scan_quote_string(char *str);
 
 #endif
