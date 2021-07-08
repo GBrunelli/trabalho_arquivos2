@@ -58,10 +58,6 @@ Result _binaryNodeSearch(const int32_t C[], const int32_t key, int32_t *P)
 
 }
 
-/**
- * Return the 
-*/
-
 int64_t _searchRegister(IndexFile *file,
                         const int32_t currentRNN, 
                         const int32_t key, 
@@ -69,21 +65,6 @@ int64_t _searchRegister(IndexFile *file,
                         int32_t *foundRNN,
                         int32_t *foundPos)
 {
-    // se current rnn nao é -1
-        // retorna nao encontrado
-
-    // senao 
-        // leia o NODE apondatado por rnn na variavel bTreeNode
-        // busca binaria por key no bTreeNode
-
-        // se encontrar key
-            // define FoundPos igual a posicao da da key (key == BTreeNode->C[FoundPos])
-            // define FoundRnn igual a currentRNN
-            // define *Pr = BTreeNode->Pr[FoundPos]
-            // retorna Result.Found
-
-        // senao
-            // chamada recursiva
 
     if (currentRNN == -1)
         return NOT_FOUND;
