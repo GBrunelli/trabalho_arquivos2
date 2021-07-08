@@ -1,16 +1,16 @@
 #ifndef LINE_ROUTINES_H
 #define LINE_ROUTINES_H
 
-// 9th task -> INDEX
+// 10th task -> INDEX
 // Generates an index, using B-Tree approach.
 void generateIndexLines();
 
-// 11th task -> SEARCH WHERE INDEX 
-// Continuation of the 5th task, now using indexed search
-void searchIndexedLines();
+// 12th task -> SEARCH WHERE INDEX = Value
+// Continuation of the 6th task, now using indexed search
+void searchIndexedLine();
 
-// 13th task -> INSERT N REGISTERS INTO END
-// Continuation of the 7th task, but now indexes new registers into BTree.
+// 14th task -> INSERT N REGISTERS INTO END
+// Continuation of the 8th task, but now indexes new registers into BTree.
 void insertNewLinesThenIndex();
 
 #endif

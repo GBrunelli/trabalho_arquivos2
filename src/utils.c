@@ -1,4 +1,103 @@
 #include "project.h"
+#include "utils.h"
+
+// Get the month member given its number
+void getMonthName(char *monthName, int month)
+{
+    switch (month)
+    {
+    case 1:
+        strcpy(monthName, "janeiro");
+        break;
+
+    case 2:
+        strcpy(monthName, "fevereiro");
+        break;
+
+    case 3:
+        strcpy(monthName, "março");
+        break;
+
+    case 4:
+        strcpy(monthName, "abril");
+        break;
+
+    case 5:
+        strcpy(monthName, "maio");
+        break;
+
+    case 6:
+        strcpy(monthName, "junho");
+        break;
+
+    case 7:
+        strcpy(monthName, "julho");
+        break;
+
+    case 8:
+        strcpy(monthName, "agosto");
+        break;
+
+    case 9:
+        strcpy(monthName, "setembro");
+        break;
+
+    case 10:
+        strcpy(monthName, "outubro");
+        break;
+
+    case 11:
+        strcpy(monthName, "novembro");
+        break;
+
+    case 12:
+        strcpy(monthName, "dezembro");
+        break;
+
+    default:
+        break;
+    }
+}
+
+// Transform a date of format "YYYY-MM-DD" to "_DAY de _MONTH_NAME_ de _YEAR_".
+// Example: "2010-05-21" -> "21 de maio de 2021".
+void tranformDate(char *date)
+{
+    // verify iF the string is null
+    if (*date == 0)
+    {
+        strcpy(date, NULL_MESSAGE);
+        return;
+    }
+
+    int day, month, year;
+    char *buffer = calloc(MAX_STRING_SIZE, 1);
+    char *bufferPointer = buffer;
+    strcpy(buffer, date);
+
+    // get the year
+    char *token;
+    token = strsep(&buffer, "-");
+    sscanf(token, "%d", &year);
+
+    // get the month
+    token = strsep(&buffer, "-");
+    sscanf(token, "%d", &month);
+
+    // get the day
+    token = strsep(&buffer, "-");
+    sscanf(token, "%d", &day);
+
+    free(bufferPointer);
+
+    // get the month name
+    char monthName[15];
+    getMonthName(monthName, month);
+
+    // create the new date format
+    sprintf(date, "%02d de %s de %d", day, monthName, year);
+    return;
+}
 
 int convertePrefixo(char* str) {
 

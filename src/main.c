@@ -1,6 +1,7 @@
 // #include "car_routines.h"
 #include "line_routines.h"
 #include "car_routines.h"
+#include "project.h"
 
 int main(void)
 {
@@ -12,8 +13,10 @@ int main(void)
     switch (n_routine)
     {
     case 9:
+        generateIndexCars();
         break;
     case 10:
+        generateIndexLines();
         break;
         /*
         Entrada do programa para a funcionalidade [9] e [10]:
@@ -23,9 +26,12 @@ int main(void)
         10 linha.bin indiceCodLinha.bin
         */
 
+
     case 11:
+        searchIndexedCars();
         break;
     case 12:
+        searchIndexedLines();
         break;
         /*
         Sintaxe do comando para a funcionalidade [11] e [12]: 
@@ -54,10 +60,6 @@ int main(void)
         ... 
         codLinhan aceitaCartaon nomeLinhan corLinhan
         */
-
-
-    default:
-        break;
     }
 
     return EXIT_SUCCESS;

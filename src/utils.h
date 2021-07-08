@@ -20,7 +20,6 @@
 // Possible file sources.
 typedef enum _Source
 {
-    CSV,
     CLI,
     BIN
 } Source;
@@ -36,6 +35,14 @@ typedef enum _FuncStatus
     LOGICALLY_REMOVED
 } FuncStatus;
 
+// Get the month, given its number
+void getMonthName(char *monthName, int month);
+
+// Transform a date of format "YYYY-MM-DD" to "_DAY de _MONTH_NAME_ de _YEAR_".
+// Example: "2010-05-21" -> "21 de maio de 2021".
+void tranformDate(char *date);
+
+// Functions given by the Professor.
 int convertePrefixo(char* str);
 void binarioNaTela(char *nomeArquivoBinario);
 void scan_quote_string(char *str);

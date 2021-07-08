@@ -5,9 +5,9 @@
 // Generates an index, using B-Tree approach.
 void generateIndexCars();
 
-// 11th task -> SEARCH WHERE INDEX 
+// 11th task -> SEARCH WHERE INDEX = Value
 // Continuation of the 5th task, now using indexed search
-void searchIndexedCars();
+void searchIndexedCar();
 
 // 13th task -> INSERT N REGISTERS INTO END
 // Continuation of the 7th task, but now indexes new registers into BTree.
