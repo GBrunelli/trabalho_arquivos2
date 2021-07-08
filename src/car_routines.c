@@ -13,36 +13,6 @@ void insertNewCarsThenIndex() {
     return;
 }
 
-// Funções usadas na 5 e 7:
-/*
-* A CONTINUAR
-newCarHeader
-getCarHeader
-checkCarFileIntegrity
-
-getTotalNumberRegisters
-
-newCar
-readCar(car, bin, BIN);
-checkIfCarMatches
-printCar
-
-freeCarHeader
-freeCar
-
-setFileStatus(bin, STATUS_INCONSISTENT);
-readCar(car, NULL, CLI);
-writeCar(car, bin, BIN);
-writeCarHeader
-
-
-! A REMOVER
-CarField
-CarSearchable
-getCarField
-CarSearchUsing
-*/ 
-
 // 5rd task -> SELECT WHERE Campo = Valor
 void printSelectedCars()
 {

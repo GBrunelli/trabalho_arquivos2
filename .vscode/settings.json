@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "cstdlib": "c",
-        "project.h": "c"
+        "project.h": "c",
+        "chrono": "c"
     }
 }

@@ -295,11 +295,24 @@ char *_checkCardType(char cardType)
         return "PAGAMENTO EM CARTAO E DINHEIRO";
     case 'F':
         return "PAGAMENTO EM CARTAO SOMENTE NO FINAL DE SEMANA";
-
     default:
         return "ERRO";
     }
 }
+
+int32_t getLineIndex(Line *l)
+{
+    return l->codLinha;
+}
+
+// Prints Car. Checks if Car is logically removed and also deals with nulls.
+bool logicallyRemoved(Line *l)
+{
+    if (l->removido == REMOVED)
+        return true;
+    return false;
+}
+
 // Prints Car. Checks if Car is logically removed and also deals with nulls.
 FuncStatus printLine(Line *l, LineHeader *lh)
 {
@@ -307,8 +320,8 @@ FuncStatus printLine(Line *l, LineHeader *lh)
         return LOGICALLY_REMOVED;
 
     printf("%s: %d\n", lh->descreveCodigo, l->codLinha);
-    printf("%s: %s\n", lh->descreveNome, l->tamanhoNome > 0 ? l->nomeLinha : "campo com valor nulo");
-    printf("%s: %s\n", lh->descreveCor, l->tamanhoCor > 0 ? l->nomeCor : "campo com valor nulo");
+    printf("%s: %s\n", lh->descreveNome, l->tamanhoNome > 0 ? l->nomeLinha : NULL_MESSAGE);
+    printf("%s: %s\n", lh->descreveCor, l->tamanhoCor > 0 ? l->nomeCor : NULL_MESSAGE);
     printf("%s: %s\n\n", lh->descreveCartao, _checkCardType(l->aceitaCartao));
     return OK;
 }

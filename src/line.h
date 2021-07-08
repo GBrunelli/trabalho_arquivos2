@@ -55,6 +55,12 @@ FuncStatus updateLine(Line *l, FILE *file, Source from);
 // Currently only supports BIN files.
 FuncStatus writeLine(Line *l, FILE *file, Source from);
 
+// Returns the index (codLinha)
+int32_t getLineIndex(Line *l);
+
+// Checks whether a line is logically removed
+bool logicallyRemoved(Line *l);
+
 /* ## Functions related to searching using a specific struct field ## */
 
 // Based on an specific searched value, check whether the current line matches
