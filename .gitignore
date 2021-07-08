@@ -1,5 +1,13 @@
+# General
+trabalho.pdf
+*.dump
+.DS_Store
+exec.dSYM
+convertePrefixo
+
 # Prerequisites
 *.d
+
 
 # Object files
 *.o
