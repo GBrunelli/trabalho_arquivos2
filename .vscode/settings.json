@@ -2,6 +2,7 @@
     "files.associations": {
         "cstdlib": "c",
         "project.h": "c",
-        "chrono": "c"
+        "chrono": "c",
+        "algorithm": "c"
     }
 }
