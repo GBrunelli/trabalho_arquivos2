@@ -1,90 +1,356 @@
 #include "b_tree.h"
 
-struct _IndexFile{
+#define DISK_PAGE_SIZE 77
+
+struct _Index
+{
     FILE* indexFile;
-    BTreeHeader header;
-    BTreeNode *nodes;
+    IndexHeader *header;
+    DiskPage **savedPages;
+    int nSavedPages;
 };
 
 struct _BTreeHeader
 {
-    char status;        // 1 byte
-    int32_t noRaiz;     // 4 bytes
-    int32_t RRNproxNo;  // 4 bytes
-    // char[68]         // 68 bytes
-};                      // 77 bytes total 
-
+    bool status;
+    int32_t noRaiz;
+    int32_t RRNproxNo;
+};
 
 struct _BTreeNode
 {
     // metadata
-    char folha;                 // 1 byte
-    int32_t nroChavesIndexadas; // 4 bytes
-    int32_t RRNdoNo;            // 4 bytes
+    bool folha;
+    int32_t nroChavesIndexadas;
+    int32_t RRNdoNo;
 
     // data
-    int32_t P[ORDER];           // 20 bytes
-    int32_t C[ORDER-1];         // 16 bytes
-    int64_t Pr[ORDER-1];        // 32 bytes
-};                              // 77 bytes
+    int32_t P[ORDER];
+    Register **regs;
+};
 
-
-
-void _splitNode()
+struct _Register
 {
+    int32_t C;
+    int64_t Pr;
+};
+Result _insert(Index *index,
+               int32_t currentRNN, 
+               Register *newReg,
+               Register **promoReg, 
+               DiskPage **promoDiskPageChild);
 
+DiskPage *_getPage(Index *index, int32_t rnn);
+
+Result _binaryNodeSearch(DiskPage *page,
+                         int32_t key, 
+                         Register **foundReg, 
+                         int *pos);
+
+void _writeGarbage(FILE* file, int bytes)
+{
+    char garbage[1] = "@";
+    for (int i = 0; i < bytes; i++) fwrite(&garbage, sizeof(char), 1, file);  
 }
 
-Result _insert(const int32_t currentRNN, 
-               const int32_t key, 
-               int32_t *promoKey, 
-               int32_t *promoKeyChild)
+void _writeIndexHeader(Index* index)
+{
+    FILE* indexFile = index->indexFile;
+    fseek(indexFile, 0, SEEK_SET);
+    char status = index->header->status ? '1' : '0';
+    fwrite(&status, 1, 1, indexFile);
+    fwrite(&index->header->noRaiz, 4, 1, indexFile);
+    fwrite(&index->header->RRNproxNo, 4, 1, indexFile);
+    _writeGarbage(indexFile, 68);
+}
+
+void _writeDisckPage(Index* index, DiskPage* page)
+{
+    int64_t offset = page->RRNdoNo * DISK_PAGE_SIZE;
+    FILE* indexFile = index->indexFile;
+    fseek(indexFile, offset, SEEK_SET);
+    char folha = page->folha ? '1' : '0';
+    fwrite(&folha, sizeof(folha), 1, indexFile);
+    fwrite(&page->nroChavesIndexadas, 4, 1, indexFile);
+    fwrite(&page->RRNdoNo, 4, 1, indexFile);
+
+    for (int i = 0; i < REGISTERS_PER_PAGE; i++)
+    {
+        fwrite(&page->P[i], 4, 1, indexFile);
+        if(page->regs[i])
+        {
+            fwrite(&page->regs[i]->C,  4, 1, indexFile);
+            fwrite(&page->regs[i]->Pr, 8, 1, indexFile);
+        }
+        else
+            _writeGarbage(indexFile, 12);
+    }
+    fwrite(&page->P[4], 4, 1, indexFile);
+}
+
+Index *createIndex(char *indexName)
+{
+    Index *index = malloc(sizeof(Index));
+    FILE* indexFile = fopen(indexName, "wb+");
+    index->indexFile = indexFile;
+    index->header = malloc(sizeof(IndexHeader));
+    index->header->noRaiz = -1;
+    index->header->RRNproxNo = 0;
+    index->header->status = false;
+    index->savedPages = NULL;
+    index->nSavedPages = 0;
+    _writeIndexHeader(index);
+    return index;
+}   
+
+void *closeIndex(Index *index)
+{
+    index->header->status = true;
+    _writeIndexHeader(index);
+    fclose(index->indexFile);
+    free(index->header);
+    for (int i = 0; i < index->nSavedPages; i++)
+    {
+        for (int j = 0; j < REGISTERS_PER_PAGE; j++)
+            free(index->savedPages[i]->regs[j]);
+        free(index->savedPages[i]->regs);
+        free(index->savedPages[i]);
+    }
+    free(index->savedPages);
+    free(index);
+}
+
+Register *createRegister(int32_t C, int64_t Pr)
+{
+    Register *reg = malloc(sizeof(Register));
+    reg->C = C;
+    reg->Pr = Pr;
+    return reg;
+}
+
+int compareRegisters(const void * a, const void * b)
+{
+    Register *regA = (Register*) a;
+    Register *regB = (Register*) b;
+    return regA->C - regB->C;
+}
+
+DiskPage *_createDiskPage(Index *index, bool folha)
+{
+    DiskPage *page = malloc(sizeof(DiskPage));
+    page->regs = malloc(sizeof(Register*)*REGISTERS_PER_PAGE);
+    page->folha = folha;
+    page->nroChavesIndexadas = 1;
+    for (int i = 0; i < ORDER; i++)
+        page->P[i] = -1;
+    for (int i = 0; i < REGISTERS_PER_PAGE; i++)
+        page->regs[i] = NULL;
+    
+    page->RRNdoNo = ++index->header->RRNproxNo;
+    return page;
+}
+
+void _saveDiskPageInMemory(Index *index, DiskPage *page)
+{
+    index->savedPages = realloc(index->savedPages, (++index->nSavedPages) * sizeof(DiskPage*));
+    index->savedPages[(index->nSavedPages)-1] = page;
+}
+
+Result insertRegister(Index *index, Register *reg)
+{
+    if(index->header->noRaiz == -1)
+    {
+        index->header->noRaiz = 1; 
+        DiskPage *page = _createDiskPage(index, true);
+        page->regs[0] = reg;
+        _saveDiskPageInMemory(index, page);
+        _writeDisckPage(index, page);
+    }
+    else 
+    {
+        DiskPage *promoDiskPageChild;
+        _insert(index, index->header->noRaiz, reg, &reg, &promoDiskPageChild);
+    }
+}
+
+void _splitNode(Index *index,
+                Register *newReg,
+                DiskPage *currentDiskPage,
+                Register **promoRegister,
+                DiskPage **rightDiskPage)
+{
+    // Creates a register array with all the registers and sort it 
+    Register **regs = malloc(sizeof(Register*)*5);
+
+    for (int i = 0; i < REGISTERS_PER_PAGE; i++)
+        regs[i] = currentDiskPage->regs[i];
+    regs[REGISTERS_PER_PAGE] = newReg;
+
+    qsort(regs, ORDER, sizeof(Register*), compareRegisters);
+
+    // find the middle register
+    (*promoRegister) = regs[REGISTERS_PER_PAGE/2];
+
+    // remake the current page
+    currentDiskPage->regs[2] = NULL;
+    currentDiskPage->regs[3] = NULL;
+    currentDiskPage->nroChavesIndexadas = 2;
+
+    // keep the old pointer
+    int32_t oldDiskPageChildRNN = (*rightDiskPage) ? (*rightDiskPage)->RRNdoNo : -1;
+
+    // fill the right page
+    (*rightDiskPage) = _createDiskPage(index, currentDiskPage->folha);
+    (*rightDiskPage)->regs[0] = regs[3];
+    (*rightDiskPage)->regs[1] = regs[4];
+    (*rightDiskPage)->P[0] = currentDiskPage->P[3];
+    (*rightDiskPage)->P[1] = currentDiskPage->P[4];
+    (*rightDiskPage)->P[2] = oldDiskPageChildRNN;
+    (*rightDiskPage)->nroChavesIndexadas = 2;
+    _saveDiskPageInMemory(index, (*rightDiskPage));
+
+    currentDiskPage->P[3] = -1;
+    currentDiskPage->P[4] = -1;
+
+    free(regs);
+}
+
+Result _insert(Index *index,
+               int32_t currentRNN, 
+               Register *newReg,
+               Register **promoReg, 
+               DiskPage **promoDiskPageChild)
 { 
+    if(currentRNN == -1)
+    {
+        (*promoReg) = newReg;
+        (*promoDiskPageChild) = NULL;
+        return PROMOTION;
+    }
+    else
+    {
+        DiskPage *currentPage = _getPage(index, currentRNN);
+        Register *foundReg;
+        int pos;
+        if(_binaryNodeSearch(currentPage, (*promoReg)->C, &foundReg, &pos) == FOUND)
+            return ERROR;
 
+        Result returnValue = _insert(index, currentPage->P[pos], (*promoReg), promoReg, promoDiskPageChild);
+        if((returnValue == NO_PROMOTION) || (returnValue == ERROR)) 
+        { 
+            return returnValue; 
+        }
+        if(currentPage->nroChavesIndexadas < REGISTERS_PER_PAGE)
+        {
+            // caso nao for folha, faz a correção dos ponteiros se necessário
+            if(!currentPage->folha)
+            {
+                int n = currentPage->nroChavesIndexadas;
+                for (int i = n; i > pos; i++)
+                {
+                    currentPage->regs[i] = currentPage->regs[i-1];
+                    currentPage->P[i+1] - currentPage->P[i];
+                }
+            }
+            currentPage->regs[pos] = (*promoReg);
+            currentPage->P[pos+1] = (*promoDiskPageChild) != NULL ? (*promoDiskPageChild)->RRNdoNo : -1;
+            currentPage->nroChavesIndexadas++;
+            _writeDisckPage(index, currentPage);
+            return NO_PROMOTION;
+        }
+        else
+        {
+            _splitNode(index, (*promoReg), currentPage, promoReg, promoDiskPageChild);
+            if(currentPage->RRNdoNo == index->header->noRaiz)
+            {
+                DiskPage *newRoot = _createDiskPage(index, false);
+                newRoot->regs[0] = (*promoReg);
+                newRoot->P[0] = currentPage->RRNdoNo;
+                newRoot->P[1] = (*promoDiskPageChild)->RRNdoNo;
+                index->header->noRaiz = newRoot->RRNdoNo;
+                _saveDiskPageInMemory(index, newRoot);
+            }
+            _writeDisckPage(index, currentPage);
+            _writeDisckPage(index, *promoDiskPageChild);
+            return PROMOTION;
+        }
+    }
 }
 
-BTreeNode *_getNode(const int32_t rnn)
+DiskPage *_getPage(Index *index, int32_t rnn)
 {
-
+    int nPages = index->nSavedPages;
+    while (nPages)
+    {
+        if (index->savedPages[nPages-1]->RRNdoNo == rnn) 
+        {
+            return index->savedPages[nPages-1];
+        }
+        nPages--;
+    }
+    // TODO: recover page from file if the page is not in the memory
 }
 
 /**
  * Makes a binary search in the node for the key, 
  * if found, returns the pos of the key,
- * else returns a negative number
+ * else returns NOT_FOUND
 */
-Result _binaryNodeSearch(const int32_t C[], const int32_t key, int32_t *P)
+Result _binaryNodeSearch(DiskPage *page,
+                         int32_t key, 
+                         Register **foundReg, 
+                         int *pos)
 {
-
+    int begin = 0;
+    int end = page->nroChavesIndexadas-1;
+    int middle = 0;
+    while(begin <= end)
+    {
+        middle = (begin + end) / 2;
+        if(page->regs[middle]->C == key)
+        {
+            *foundReg = page->regs[middle];
+            return FOUND;
+        }
+        if(page->regs[middle]->C < key)
+            begin = middle + 1;
+        else
+            end = middle - 1;
+    }
+    if(pos != NULL)
+    {
+        if(page->regs[middle]->C > key) 
+            *pos = middle;
+        else 
+            *pos = middle+1;
+    }   
+    return NOT_FOUND;
 }
 
-int64_t _searchRegister(IndexFile *file,
-                        const int32_t currentRNN, 
-                        const int32_t key, 
-                        int64_t *Pr,
-                        int32_t *foundRNN,
-                        int32_t *foundPos)
+Result _searchRegister(Index *index,
+                       int32_t currentRNN,
+                       int32_t key,
+                       Register **foundReg)
 {
-
     if (currentRNN == -1)
         return NOT_FOUND;
 
     else 
     {
-        int32_t pos;
-        BTreeNode *node = _getNode(currentRNN);
-        Result result = _binaryNodeSearch(node->C, key, &pos);
+        int pos;
+        DiskPage *node = _getPage(index, currentRNN);
+        Result result = _binaryNodeSearch(node, key, foundReg, &pos);
 
         if (result == FOUND)
         {
-            *foundPos = pos;
-            *foundRNN = currentRNN;
-            *Pr = node->Pr[pos];
             return FOUND;
         }
         else
-        {
-            return _searchRegister(file, node->P[pos], key, Pr, foundRNN, foundPos);
-        }
+            return _searchRegister(index, node->P[pos], key, foundReg);
     }
+}
+
+Result searchRegister(Index *index, int32_t key, Register **foundReg)
+{
+    return _searchRegister(index, index->header->noRaiz, key, foundReg);
 }

@@ -4,6 +4,8 @@
 #include "project.h"
 
 #define ORDER 5
+#define REGISTERS_PER_PAGE 4
+#define PAGE_SIZE 77
 
 typedef enum _Result
 {
@@ -14,14 +16,40 @@ typedef enum _Result
     ERROR
 } Result;
 
-typedef struct _BTreeHeader BTreeHeader;
-typedef struct _BTreeNode BTreeNode;
-typedef struct _IndexFile IndexFile;
+typedef struct _BTreeHeader  IndexHeader;
+typedef struct _BTreeNode    DiskPage;
+typedef struct _Index        Index;
+typedef struct _Register     Register;
 
-BTreeNode newBTreeNode();
+/**
+ * Creates and opens an empty index file, and set its status to inconsistent
+*/
+Index *createIndex(char *indexFileName);
 
-Result insertRegister(const int32_t key);
+/**
+ * Closes the index file, and set its status to consistent
+*/
+void *closeIndex(Index *index);
 
-Result searchRegister(const int32_t key, int64_t *Pr);
+/**
+ * Retuns an index register with key C and value Pr
+*/
+Register *createRegister(int32_t C, int64_t Pr);
+
+/**
+ * Insert a new register in the index
+*/
+Result insertRegister(Index *index, Register *reg);
+
+/**
+ * Searches for a key in the index file,
+ * if a register is founds, returns it 
+*/
+Result searchRegister(Index *index, int32_t key, Register **foundReg);
+
+/**
+ * Compare 2 registers
+*/
+int compareRegisters(const void *a, const void *b);
 
 #endif
