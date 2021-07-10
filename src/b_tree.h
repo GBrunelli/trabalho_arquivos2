@@ -5,7 +5,6 @@
 
 #define ORDER 5
 #define REGISTERS_PER_PAGE 4
-#define PAGE_SIZE 77
 
 typedef enum _Result
 {
@@ -16,8 +15,6 @@ typedef enum _Result
     ERROR
 } Result;
 
-typedef struct _BTreeHeader  IndexHeader;
-typedef struct _BTreeNode    DiskPage;
 typedef struct _Index        Index;
 typedef struct _Register     Register;
 
@@ -25,6 +22,11 @@ typedef struct _Register     Register;
  * Creates and opens an empty index file, and set its status to inconsistent
 */
 Index *createIndex(char *indexFileName);
+
+/**
+ * Opens an index file, and set its status to inconsistent
+*/
+Index *openIndex(char *indexFileName);
 
 /**
  * Closes the index file, and set its status to consistent
@@ -37,7 +39,7 @@ void *closeIndex(Index *index);
 Register *createRegister(int32_t C, int64_t Pr);
 
 /**
- * Insert a new register in the index
+ * Insert a new register in the index file
 */
 Result insertRegister(Index *index, Register *reg);
 
@@ -48,7 +50,7 @@ Result insertRegister(Index *index, Register *reg);
 Result searchRegister(Index *index, int32_t key, Register **foundReg);
 
 /**
- * Compare 2 registers
+ * Compare 2 **registers
 */
 int compareRegisters(const void *a, const void *b);
 

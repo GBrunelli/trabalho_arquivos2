@@ -1,6 +1,11 @@
 #include "b_tree.h"
 
 #define DISK_PAGE_SIZE 77
+#define INT_32_GARBAGE 1077952576
+#define INT_64_GARBAGE 4629771061636907072
+
+typedef struct _BTreeHeader IndexHeader;
+typedef struct _BTreeNode DiskPage;
 
 struct _Index
 {
@@ -88,11 +93,33 @@ void _writeDisckPage(Index* index, DiskPage* page)
     fwrite(&page->P[4], 4, 1, indexFile);
 }
 
-Index *createIndex(char *indexName)
+Index *openIndex(char *indexFileName)
 {
     Index *index = malloc(sizeof(Index));
-    FILE* indexFile = fopen(indexName, "wb+");
-    index->indexFile = indexFile;
+    index->indexFile = fopen(indexFileName, "rb+");
+    if(!index->indexFile)
+    {
+        free(index);
+        return NULL;
+    }
+    index->header = malloc(sizeof(IndexHeader));   
+    index->savedPages = NULL;
+    index->nSavedPages = 0; 
+    fseek(index->indexFile, 0, SEEK_SET);
+    char status;
+    fread(&status, 1, 1, index->indexFile);
+    if(status == '0') return NULL;
+
+    index->header->status = false;
+    fread(&index->header->noRaiz,    4, 1, index->indexFile);
+    fread(&index->header->RRNproxNo, 4, 1, index->indexFile);
+    return index;
+}
+
+Index *createIndex(char *indexFileName)
+{
+    Index *index = malloc(sizeof(Index));
+    index->indexFile = fopen(indexFileName, "wb+");
     index->header = malloc(sizeof(IndexHeader));
     index->header->noRaiz = -1;
     index->header->RRNproxNo = 0;
@@ -101,7 +128,7 @@ Index *createIndex(char *indexName)
     index->nSavedPages = 0;
     _writeIndexHeader(index);
     return index;
-}   
+}
 
 void *closeIndex(Index *index)
 {
@@ -130,21 +157,19 @@ Register *createRegister(int32_t C, int64_t Pr)
 
 int compareRegisters(const void * a, const void * b)
 {
-    Register *regA = (Register*) a;
-    Register *regB = (Register*) b;
-    return regA->C - regB->C;
+    Register **regA = (Register**) a;
+    Register **regB = (Register**) b;
+    return (*regA)->C - (*regB)->C;
 }
 
 DiskPage *_createDiskPage(Index *index, bool folha)
 {
     DiskPage *page = malloc(sizeof(DiskPage));
-    page->regs = malloc(sizeof(Register*)*REGISTERS_PER_PAGE);
+    page->regs = calloc(1, sizeof(Register*)*REGISTERS_PER_PAGE);
     page->folha = folha;
     page->nroChavesIndexadas = 1;
     for (int i = 0; i < ORDER; i++)
         page->P[i] = -1;
-    for (int i = 0; i < REGISTERS_PER_PAGE; i++)
-        page->regs[i] = NULL;
     
     page->RRNdoNo = ++index->header->RRNproxNo;
     return page;
@@ -180,7 +205,7 @@ void _splitNode(Index *index,
                 DiskPage **rightDiskPage)
 {
     // Creates a register array with all the registers and sort it 
-    Register **regs = malloc(sizeof(Register*)*5);
+    Register **regs = malloc(sizeof(Register*)*ORDER);
 
     for (int i = 0; i < REGISTERS_PER_PAGE; i++)
         regs[i] = currentDiskPage->regs[i];
@@ -220,7 +245,7 @@ Result _insert(Index *index,
                Register *newReg,
                Register **promoReg, 
                DiskPage **promoDiskPageChild)
-{ 
+{
     if(currentRNN == -1)
     {
         (*promoReg) = newReg;
@@ -269,6 +294,7 @@ Result _insert(Index *index,
                 newRoot->P[1] = (*promoDiskPageChild)->RRNdoNo;
                 index->header->noRaiz = newRoot->RRNdoNo;
                 _saveDiskPageInMemory(index, newRoot);
+                _writeDisckPage(index, newRoot);
             }
             _writeDisckPage(index, currentPage);
             _writeDisckPage(index, *promoDiskPageChild);
@@ -288,7 +314,43 @@ DiskPage *_getPage(Index *index, int32_t rnn)
         }
         nPages--;
     }
-    // TODO: recover page from file if the page is not in the memory
+    // if the disk page is not on memory, recover it
+    DiskPage *page = malloc(sizeof(DiskPage));
+    page->regs = calloc(1, sizeof(Register*)*REGISTERS_PER_PAGE);
+    for (int i = 0; i < ORDER; i++)
+        page->P[i] = -1;
+
+    fseek(index->indexFile, rnn*DISK_PAGE_SIZE, SEEK_SET);
+
+    char folha;
+    int32_t nroChavesIndexadas;
+    int32_t RRNdoNo;
+
+    fread(&folha, 1, 1, index->indexFile);
+    fread(&nroChavesIndexadas, 4, 1, index->indexFile);
+    fread(&RRNdoNo, 4, 1, index->indexFile);
+
+    page->folha = folha == '1' ? true : false;
+    page->nroChavesIndexadas = nroChavesIndexadas;
+    page->RRNdoNo = RRNdoNo;
+    
+    for (int i = 0; i < REGISTERS_PER_PAGE; i++)
+    {
+        fread(&page->P[i], 4, 1, index->indexFile);
+        int32_t C;
+        int64_t Pr;
+        fread(&C, 4, 1, index->indexFile);
+        fread(&Pr, 8, 1, index->indexFile);
+        bool CIsGarbage = (C == INT_32_GARBAGE);
+        bool PrIsGarbage = (Pr == INT_64_GARBAGE);
+        if(!(CIsGarbage || CIsGarbage))
+            page->regs[i] = createRegister(CIsGarbage ? INT_32_GARBAGE : C, 
+            PrIsGarbage ? INT_64_GARBAGE : Pr);
+        else break;
+    }
+    fread(&page->P[REGISTERS_PER_PAGE], 4, 1, index->indexFile);
+    _saveDiskPageInMemory(index, page);
+    return page;
 }
 
 /**
