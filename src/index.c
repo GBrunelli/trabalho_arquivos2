@@ -27,8 +27,7 @@ void indexLines() {
     }
     freeLine(l);
     freeRegister(reg);
-    // closeIndex(index);
-    fclose(indexFile);
+    closeIndex(index);
     fclose(binFile);
 
     binarioNaTela(indexFileName);
