@@ -1,8 +1,7 @@
-// #include "car_routines.h"
-#include "index.h"
 #include "project.h"
 
-// #include "search.h"
+#include "index.h"
+#include "search.h"
 // #include "insert.h"
 
 
@@ -22,10 +21,10 @@ int main(void)
         indexLines();
         break;
     case 11:
-        // searchCar();
+        searchCar();
         break;
     case 12:
-        // searchLine();
+        searchLine();
         break;
     case 13:
         // insertCars();
