@@ -6,5 +6,4 @@
 void insertLines(void);
 void insertCars(void);
 
-
 #endif

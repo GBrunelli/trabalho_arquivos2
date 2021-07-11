@@ -6,5 +6,4 @@
 void searchLine(void);
 void searchCar(void);
 
-
 #endif

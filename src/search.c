@@ -15,22 +15,25 @@ void searchLine(void)
     FILE *bin = NULL, *indexFile = NULL;
     openFiles(&bin, binFileName, "rb+", &indexFile, indexFileName, "rb+", checkLineFileIntegrity);
 
-    Index* index = openIndex(indexFile);
+    Index *index = openIndex(indexFile);
 
     // Searching inside our index for the register
     Register *reg;
     Result result = searchRegister(index, indexedField, &reg);
 
     // If no result was found, finish program
-    if (result == NOT_FOUND) {
+    if (result == NOT_FOUND)
+    {
         printf("Registro inexistente.\n");
-    } else {
+    }
+    else
+    {
         // Otherwise print line using Pr obatined from the Index
         LineHeader *lh = newLineHeader();
         Line *l = newLine();
 
         updateLineHeader(lh, bin, BIN);
-        updateLine(l, bin, BIN, getPR(reg)); 
+        updateLine(l, bin, BIN, getPR(reg));
 
         printLine(l, lh);
 
@@ -57,22 +60,25 @@ void searchCar(void)
     FILE *bin = NULL, *indexFile = NULL;
     openFiles(&bin, binFileName, "rb+", &indexFile, indexFileName, "rb+", checkCarFileIntegrity);
 
-    Index* index = openIndex(indexFile);
+    Index *index = openIndex(indexFile);
 
     // Searching inside our index for the register
     Register *reg;
     Result result = searchRegister(index, indexedField, &reg);
 
     // If no result was found, finish program
-    if (result == NOT_FOUND) {
+    if (result == NOT_FOUND)
+    {
         printf("Registro inexistente.\n");
-    } else {
+    }
+    else
+    {
         // Otherwise print line using Pr obatined from the Index
         CarHeader *ch = newCarHeader();
         Car *c = newCar();
 
         getCarHeader(ch, bin, BIN);
-        readCar(c, bin, BIN, getPR(reg)); 
+        readCar(c, bin, BIN, getPR(reg));
 
         printCar(c, ch);
 

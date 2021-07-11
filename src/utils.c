@@ -1,8 +1,8 @@
 #include "project.h"
 #include "utils.h"
 
-
-void openFiles(FILE** bin, char* binFileName, char* binMode, FILE** index, char* indexFileName, char* indexMode, bool (*integrityChecker)(FILE*)) {
+void openFiles(FILE **bin, char *binFileName, char *binMode, FILE **index, char *indexFileName, char *indexMode, bool (*integrityChecker)(FILE *))
+{
     *bin = fopen(binFileName, binMode);
     if (*bin == NULL)
     {
@@ -20,7 +20,8 @@ void openFiles(FILE** bin, char* binFileName, char* binMode, FILE** index, char*
     // Checking file integrity
     char c = 0;
     fread(&c, 1, 1, *index);
-    if (integrityChecker(*bin) || (c == '0')) {
+    if (integrityChecker(*bin) || (c == '0'))
+    {
         printf("Falha no processamento do arquivo.\n");
         fclose(*bin);
         fclose(*index);
@@ -114,10 +115,11 @@ void tranformDate(char *date)
     return;
 }
 
-int convertePrefixo(char* str) {
+int convertePrefixo(char *str)
+{
 
     /* O registro que tem essa string como chave foi removido */
-    if(str[0] == '*')
+    if (str[0] == '*')
         return -1;
 
     /* Começamos com o primeiro digito na ordem de 36^0 = 1 */
@@ -125,7 +127,8 @@ int convertePrefixo(char* str) {
 
     /* Faz a conversão char por char para chegar ao resultado */
     int result = 0;
-    for(int i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; i++)
+    {
 
         /* 
             Interpreta o char atual como se fosse um digito
@@ -136,10 +139,10 @@ int convertePrefixo(char* str) {
         */
         int cur_digit = 0;
         /* Checa pelos digitos normais e os converte para números */
-        if(str[i] >= '0' && str[i] <= '9')
+        if (str[i] >= '0' && str[i] <= '9')
             cur_digit = str[i] - '0';
         /* Checa pelas letras e as converte para números */
-        else if(str[i] >= 'A' && str[i] <= 'Z')
+        else if (str[i] >= 'A' && str[i] <= 'Z')
             cur_digit = 10 + str[i] - 'A';
 
         /*
@@ -155,11 +158,9 @@ int convertePrefixo(char* str) {
 
         /* Aumenta a ordem atual */
         power *= 36;
-
     }
 
     return result;
-
 }
 
 // Remove "Quotation Marks" from a string.
@@ -210,38 +211,38 @@ void fillWithGarbage(char *string, int len)
 void binarioNaTela(char *nomeArquivoBinario)
 { /* Você não precisa entender o código dessa função. */
 
-	/* Use essa função para comparação no run.codes. Lembre-se de ter fechado (fclose) o arquivo anteriormente.
+    /* Use essa função para comparação no run.codes. Lembre-se de ter fechado (fclose) o arquivo anteriormente.
 	*  Ela vai abrir de novo para leitura e depois fechar (você não vai perder pontos por isso se usar ela). */
 
-	unsigned long i, cs;
-	unsigned char *mb;
-	size_t fl;
-	FILE *fs;
-	if (nomeArquivoBinario == NULL || !(fs = fopen(nomeArquivoBinario, "rb")))
-	{
-		fprintf(stderr, "ERRO AO ESCREVER O BINARIO NA TELA (função binarioNaTela): não foi possível abrir o arquivo que me passou para leitura. Ele existe e você tá passando o nome certo? Você lembrou de fechar ele com fclose depois de usar?\n");
-		return;
-	}
-	fseek(fs, 0, SEEK_END);
-	fl = ftell(fs);
-	fseek(fs, 0, SEEK_SET);
-	mb = (unsigned char *)malloc(fl);
-	fread(mb, 1, fl, fs);
+    unsigned long i, cs;
+    unsigned char *mb;
+    size_t fl;
+    FILE *fs;
+    if (nomeArquivoBinario == NULL || !(fs = fopen(nomeArquivoBinario, "rb")))
+    {
+        fprintf(stderr, "ERRO AO ESCREVER O BINARIO NA TELA (função binarioNaTela): não foi possível abrir o arquivo que me passou para leitura. Ele existe e você tá passando o nome certo? Você lembrou de fechar ele com fclose depois de usar?\n");
+        return;
+    }
+    fseek(fs, 0, SEEK_END);
+    fl = ftell(fs);
+    fseek(fs, 0, SEEK_SET);
+    mb = (unsigned char *)malloc(fl);
+    fread(mb, 1, fl, fs);
 
-	cs = 0;
-	for (i = 0; i < fl; i++)
-	{
-		cs += (unsigned long)mb[i];
-	}
-	printf("%lf\n", (cs / (double)100));
-	free(mb);
-	fclose(fs);
+    cs = 0;
+    for (i = 0; i < fl; i++)
+    {
+        cs += (unsigned long)mb[i];
+    }
+    printf("%lf\n", (cs / (double)100));
+    free(mb);
+    fclose(fs);
 }
 
 void scan_quote_string(char *str)
 {
 
-	/*
+    /*
 	*	Use essa função para ler um campo string delimitado entre aspas (").
 	*	Chame ela na hora que for ler tal campo. Por exemplo:
 	*
@@ -254,35 +255,35 @@ void scan_quote_string(char *str)
 	*
 	*/
 
-	char R;
+    char R;
 
-	while ((R = getchar()) != EOF && isspace(R))
-		; // ignorar espaços, \r, \n...
+    while ((R = getchar()) != EOF && isspace(R))
+        ; // ignorar espaços, \r, \n...
 
-	if (R == 'N' || R == 'n')
-	{ // campo NULO
-		getchar();
-		getchar();
-		getchar();		 // ignorar o "ULO" de NULO.
-		strcpy(str, ""); // copia string vazia
-	}
-	else if (R == '\"')
-	{
-		if (scanf("%[^\"]", str) != 1)
-		{ // ler até o fechamento das aspas
-			strcpy(str, "");
-		}
-		getchar(); // ignorar aspas fechando
-	}
-	else if (R != EOF)
-	{ // vc tá tentando ler uma string que não tá entre aspas! Fazer leitura normal %s então, pois deve ser algum inteiro ou algo assim...
-		str[0] = R;
-		scanf("%s", &str[1]);
-	}
-	else
-	{ // EOF
-		strcpy(str, "");
-	}
+    if (R == 'N' || R == 'n')
+    { // campo NULO
+        getchar();
+        getchar();
+        getchar();       // ignorar o "ULO" de NULO.
+        strcpy(str, ""); // copia string vazia
+    }
+    else if (R == '\"')
+    {
+        if (scanf("%[^\"]", str) != 1)
+        { // ler até o fechamento das aspas
+            strcpy(str, "");
+        }
+        getchar(); // ignorar aspas fechando
+    }
+    else if (R != EOF)
+    { // vc tá tentando ler uma string que não tá entre aspas! Fazer leitura normal %s então, pois deve ser algum inteiro ou algo assim...
+        str[0] = R;
+        scanf("%s", &str[1]);
+    }
+    else
+    { // EOF
+        strcpy(str, "");
+    }
 }
 
 /* ---------------- EXTRA ----------------

@@ -89,16 +89,18 @@ int getNRemovedRegisters(LineHeader *lh)
     return lh->nroRegistrosRemovidos;
 }
 
-int getLineTotalRegisters(FILE* bin) {
+int getLineTotalRegisters(FILE *bin)
+{
     LineHeader *lh = newLineHeader();
     updateLineHeader(lh, bin, BIN);
     int nreg = getNRegisters(lh) + getNRemovedRegisters(lh);
     freeLineHeader(lh);
-    
+
     return nreg;
 }
 
-bool checkLineFileIntegrity(FILE* bin) {
+bool checkLineFileIntegrity(FILE *bin)
+{
     LineHeader *lh = newLineHeader();
     updateLineHeader(lh, bin, BIN);
     bool integrity = !checkLineHeaderIntegrity(lh);
@@ -180,7 +182,7 @@ int64_t _updateLineFromBin(Line *l, FILE *file, int64_t customOffset)
     // if the pointer is pointing at the header, set the pointer for the first car in the file
     long long position = ftell(file);
     long long offset = position < LINE_HEADER_OFFSET ? LINE_HEADER_OFFSET : position;
-    
+
     // Checking if custom offset was provided
     offset = customOffset != NO_OFFSET ? customOffset : offset;
 

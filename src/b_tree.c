@@ -9,7 +9,7 @@ typedef struct _BTreeNode DiskPage;
 
 struct _Index
 {
-    FILE* indexFile;
+    FILE *indexFile;
     IndexHeader *header;
     DiskPage **savedPages;
     int nSavedPages;
@@ -40,27 +40,28 @@ struct _Register
     int64_t Pr;
 };
 Result _insert(Index *index,
-               int32_t currentRNN, 
+               int32_t currentRNN,
                Register *newReg,
-               Register **promoReg, 
+               Register **promoReg,
                DiskPage **promoDiskPageChild);
 
 DiskPage *_getPage(Index *index, int32_t rnn);
 
 Result _binaryNodeSearch(DiskPage *page,
-                         int32_t key, 
-                         Register **foundReg, 
+                         int32_t key,
+                         Register **foundReg,
                          int *pos);
 
-void _writeGarbage(FILE* file, int bytes)
+void _writeGarbage(FILE *file, int bytes)
 {
     char garbage[1] = "@";
-    for (int i = 0; i < bytes; i++) fwrite(&garbage, sizeof(char), 1, file);  
+    for (int i = 0; i < bytes; i++)
+        fwrite(&garbage, sizeof(char), 1, file);
 }
 
-void _writeIndexHeader(Index* index)
+void _writeIndexHeader(Index *index)
 {
-    FILE* indexFile = index->indexFile;
+    FILE *indexFile = index->indexFile;
     fseek(indexFile, 0, SEEK_SET);
     char status = index->header->status ? '1' : '0';
     fwrite(&status, 1, 1, indexFile);
@@ -69,10 +70,10 @@ void _writeIndexHeader(Index* index)
     _writeGarbage(indexFile, 68);
 }
 
-void _writeDiskPage(Index* index, DiskPage* page)
+void _writeDiskPage(Index *index, DiskPage *page)
 {
-    int64_t offset = (page->RRNdoNo+1) * DISK_PAGE_SIZE;
-    FILE* indexFile = index->indexFile;
+    int64_t offset = (page->RRNdoNo + 1) * DISK_PAGE_SIZE;
+    FILE *indexFile = index->indexFile;
     fseek(indexFile, offset, SEEK_SET);
     char folha = page->folha ? '1' : '0';
     fwrite(&folha, sizeof(folha), 1, indexFile);
@@ -84,9 +85,9 @@ void _writeDiskPage(Index* index, DiskPage* page)
     for (int i = 0; i < REGISTERS_PER_PAGE; i++)
     {
         fwrite(&page->P[i], 4, 1, indexFile);
-        if(page->regs[i])
+        if (page->regs[i])
         {
-            fwrite(&page->regs[i]->C,  4, 1, indexFile);
+            fwrite(&page->regs[i]->C, 4, 1, indexFile);
             fwrite(&page->regs[i]->Pr, 8, 1, indexFile);
         }
         else
@@ -94,35 +95,35 @@ void _writeDiskPage(Index* index, DiskPage* page)
             fwrite(&notFilled32, 4, 1, indexFile);
             fwrite(&notFilled64, 8, 1, indexFile);
         }
-            
     }
     fwrite(&page->P[4], 4, 1, indexFile);
 }
 
-Index *openIndex(FILE* indexFile)
+Index *openIndex(FILE *indexFile)
 {
     Index *index = malloc(sizeof(Index));
     index->indexFile = indexFile;
-    if(!index->indexFile)
+    if (!index->indexFile)
     {
         free(index);
         return NULL;
     }
-    index->header = malloc(sizeof(IndexHeader));   
+    index->header = malloc(sizeof(IndexHeader));
     index->savedPages = NULL;
-    index->nSavedPages = 0; 
+    index->nSavedPages = 0;
     fseek(index->indexFile, 0, SEEK_SET);
     char status;
     fread(&status, 1, 1, index->indexFile);
-    if(status == '0') return NULL;
+    if (status == '0')
+        return NULL;
 
     index->header->status = false;
-    fread(&index->header->noRaiz,    4, 1, index->indexFile);
+    fread(&index->header->noRaiz, 4, 1, index->indexFile);
     fread(&index->header->RRNproxNo, 4, 1, index->indexFile);
     return index;
 }
 
-Index *createIndex(FILE* idx)
+Index *createIndex(FILE *idx)
 {
     Index *index = malloc(sizeof(Index));
     index->indexFile = idx;
@@ -147,14 +148,15 @@ void closeIndex(Index *index)
         for (int j = 0; j < index->savedPages[i]->nroChavesIndexadas; j++)
         {
             free(index->savedPages[i]->regs[j]);
-        } 
+        }
         free(index->savedPages[i]);
     }
     free(index->savedPages);
     free(index);
 }
 
-Register* newRegister() {
+Register *newRegister()
+{
     Register *reg = calloc(1, sizeof(Register));
     return reg;
 }
@@ -167,23 +169,26 @@ Register *createRegister(int32_t C, int64_t Pr)
     return reg;
 }
 
-int64_t getPR(Register* reg) {
+int64_t getPR(Register *reg)
+{
     return reg->Pr;
 }
 
-void updateRegister(Register* reg, int32_t C, int64_t Pr) {
+void updateRegister(Register *reg, int32_t C, int64_t Pr)
+{
     reg->C = C;
     reg->Pr = Pr;
 }
 
-int compareRegisters(const void * a, const void * b)
+int compareRegisters(const void *a, const void *b)
 {
-    Register **regA = (Register**) a;
-    Register **regB = (Register**) b;
+    Register **regA = (Register **)a;
+    Register **regB = (Register **)b;
     return (*regA)->C - (*regB)->C;
 }
 
-void freeRegister(Register *r) {
+void freeRegister(Register *r)
+{
     free(r);
 }
 
@@ -193,18 +198,18 @@ DiskPage *_createDiskPage(Index *index, bool folha)
     page->folha = folha;
     page->nroChavesIndexadas = 1;
     for (int i = 0; i < ORDER; i++)
-        page->P[i] = -1;  
+        page->P[i] = -1;
     for (int i = 0; i < REGISTERS_PER_PAGE; i++)
         page->regs[i] = NULL;
-    
+
     page->RRNdoNo = index->header->RRNproxNo++;
     return page;
 }
 
 void _saveDiskPageInMemory(Index *index, DiskPage *page)
 {
-    index->savedPages = realloc(index->savedPages, (++index->nSavedPages) * sizeof(DiskPage*));
-    index->savedPages[(index->nSavedPages)-1] = page;
+    index->savedPages = realloc(index->savedPages, (++index->nSavedPages) * sizeof(DiskPage *));
+    index->savedPages[(index->nSavedPages) - 1] = page;
 }
 
 Result insertRegister(Index *index, Register *reg)
@@ -212,9 +217,9 @@ Result insertRegister(Index *index, Register *reg)
     Register *regcpy = malloc(sizeof(Register));
     memcpy(regcpy, reg, sizeof(Register));
 
-    if(index->header->noRaiz == -1)
+    if (index->header->noRaiz == -1)
     {
-        index->header->noRaiz = 0; 
+        index->header->noRaiz = 0;
         DiskPage *page = _createDiskPage(index, true);
         page->regs[0] = regcpy;
         _saveDiskPageInMemory(index, page);
@@ -233,11 +238,12 @@ Result insertRegister(Index *index, Register *reg)
 
 void testDiskPage(Index *index, DiskPage *currentPage)
 {
-    if(currentPage->folha) return;
+    if (currentPage->folha)
+        return;
     for (int i = 0; i < currentPage->nroChavesIndexadas; i++)
     {
         DiskPage *filha = _getPage(index, currentPage->P[i]);
-        for (int j = 0; j < filha->nroChavesIndexadas ; j++)
+        for (int j = 0; j < filha->nroChavesIndexadas; j++)
         {
             if (currentPage->regs[i]->C <= filha->regs[j]->C)
                 printf("STOP");
@@ -247,9 +253,9 @@ void testDiskPage(Index *index, DiskPage *currentPage)
 
     for (int j = 0; j < filha->nroChavesIndexadas; j++)
     {
-        if (currentPage->regs[currentPage->nroChavesIndexadas-1]->C >= filha->regs[j]->C)
-        printf("STOP");
-    } 
+        if (currentPage->regs[currentPage->nroChavesIndexadas - 1]->C >= filha->regs[j]->C)
+            printf("STOP");
+    }
 }
 
 void _splitNode(Index *index,
@@ -262,11 +268,11 @@ void _splitNode(Index *index,
     int32_t oldDiskPageChildRNN = (*promoDiskPageChild) ? (*promoDiskPageChild)->RRNdoNo : -1;
 
     // Creates a register array with all the registers
-    Register *regs[REGISTERS_PER_PAGE+1];
+    Register *regs[REGISTERS_PER_PAGE + 1];
     memcpy(regs, currentPage->regs, sizeof(currentPage->regs));
 
     // Create a array with all pointers
-    int32_t P[ORDER+1];
+    int32_t P[ORDER + 1];
     memcpy(P, currentPage->P, sizeof(currentPage->P));
 
     // finds the correct position of the the registers
@@ -274,27 +280,27 @@ void _splitNode(Index *index,
     int pos = REGISTERS_PER_PAGE;
     for (int i = 0; (i < REGISTERS_PER_PAGE) && (!inserted); i++)
     {
-        if(newReg->C < regs[i]->C)
+        if (newReg->C < regs[i]->C)
         {
             pos = i;
             inserted = true;
-        }  
+        }
     }
 
     // make the correction of the registers and pointers
-    if(inserted)
-    for (int i = currentPage->nroChavesIndexadas; i > pos; i--)
-    {
-        regs[i] = regs[i-1];
-        P[i+1] = P[i];
-    }
+    if (inserted)
+        for (int i = currentPage->nroChavesIndexadas; i > pos; i--)
+        {
+            regs[i] = regs[i - 1];
+            P[i + 1] = P[i];
+        }
 
     // insert the new register in the array
     regs[pos] = newReg;
-    P[pos+1] = oldDiskPageChildRNN;    
+    P[pos + 1] = oldDiskPageChildRNN;
 
     // set the promo register as the middle register
-    (*promoRegister) = regs[REGISTERS_PER_PAGE/2];
+    (*promoRegister) = regs[REGISTERS_PER_PAGE / 2];
 
     // remake the current page
     currentPage->regs[0] = regs[0];
@@ -325,12 +331,12 @@ void _splitNode(Index *index,
 }
 
 Result _insert(Index *index,
-               int32_t currentRNN, 
+               int32_t currentRNN,
                Register *newReg,
-               Register **promoReg, 
+               Register **promoReg,
                DiskPage **promoDiskPageChild)
 {
-    if(currentRNN == -1)
+    if (currentRNN == -1)
     {
         (*promoReg) = newReg;
         (*promoDiskPageChild) = NULL;
@@ -341,24 +347,24 @@ Result _insert(Index *index,
         DiskPage *currentPage = _getPage(index, currentRNN);
         Register *foundReg;
         int pos;
-        if(_binaryNodeSearch(currentPage, (*promoReg)->C, &foundReg, &pos) == FOUND)
+        if (_binaryNodeSearch(currentPage, (*promoReg)->C, &foundReg, &pos) == FOUND)
             return ERROR;
 
         Result returnValue = _insert(index, currentPage->P[pos], (*promoReg), promoReg, promoDiskPageChild);
-        if((returnValue == NO_PROMOTION) || (returnValue == ERROR)) 
-        { 
-            return returnValue; 
+        if ((returnValue == NO_PROMOTION) || (returnValue == ERROR))
+        {
+            return returnValue;
         }
-        if(currentPage->nroChavesIndexadas < REGISTERS_PER_PAGE)
+        if (currentPage->nroChavesIndexadas < REGISTERS_PER_PAGE)
         {
             // faz a correção dos ponteiros se necessário
             for (int i = currentPage->nroChavesIndexadas; i > pos; i--)
             {
-                currentPage->regs[i] = currentPage->regs[i-1];
-                currentPage->P[i+1] = currentPage->P[i];
+                currentPage->regs[i] = currentPage->regs[i - 1];
+                currentPage->P[i + 1] = currentPage->P[i];
             }
             currentPage->regs[pos] = (*promoReg);
-            currentPage->P[pos+1] = (*promoDiskPageChild) != NULL ? (*promoDiskPageChild)->RRNdoNo : -1;
+            currentPage->P[pos + 1] = (*promoDiskPageChild) != NULL ? (*promoDiskPageChild)->RRNdoNo : -1;
             currentPage->nroChavesIndexadas++;
             _writeDiskPage(index, currentPage);
             return NO_PROMOTION;
@@ -366,7 +372,7 @@ Result _insert(Index *index,
         else
         {
             _splitNode(index, (*promoReg), currentPage, promoReg, promoDiskPageChild);
-            if(currentPage->RRNdoNo == index->header->noRaiz)
+            if (currentPage->RRNdoNo == index->header->noRaiz)
             {
                 DiskPage *newRoot = _createDiskPage(index, false);
                 newRoot->regs[0] = (*promoReg);
@@ -388,7 +394,7 @@ DiskPage *_getPage(Index *index, int32_t rnn)
     int nPages = index->nSavedPages;
     for (int i = 0; i < nPages; i++)
     {
-        if(index->savedPages[i]->RRNdoNo == rnn)
+        if (index->savedPages[i]->RRNdoNo == rnn)
             return index->savedPages[i];
     }
     // if the disk page is not on memory, recover it
@@ -397,7 +403,7 @@ DiskPage *_getPage(Index *index, int32_t rnn)
     for (int i = 0; i < ORDER; i++)
         page->P[i] = -1;
 
-    fseek(index->indexFile, (rnn+1)*DISK_PAGE_SIZE, SEEK_SET);
+    fseek(index->indexFile, (rnn + 1) * DISK_PAGE_SIZE, SEEK_SET);
 
     char folha;
     int32_t nroChavesIndexadas;
@@ -410,7 +416,7 @@ DiskPage *_getPage(Index *index, int32_t rnn)
     page->folha = folha == '1' ? true : false;
     page->nroChavesIndexadas = nroChavesIndexadas;
     page->RRNdoNo = RRNdoNo;
-    
+
     for (int i = 0; i < REGISTERS_PER_PAGE; i++)
     {
         fread(&page->P[i], 4, 1, index->indexFile);
@@ -420,10 +426,11 @@ DiskPage *_getPage(Index *index, int32_t rnn)
         fread(&Pr, 8, 1, index->indexFile);
         bool CIsGarbage = (C == -1);
         bool PrIsGarbage = (Pr == -1);
-        if(!(CIsGarbage || CIsGarbage))
-            page->regs[i] = createRegister(CIsGarbage ? INT_32_GARBAGE : C, 
-            PrIsGarbage ? INT_64_GARBAGE : Pr);
-        else break;
+        if (!(CIsGarbage || CIsGarbage))
+            page->regs[i] = createRegister(CIsGarbage ? INT_32_GARBAGE : C,
+                                           PrIsGarbage ? INT_64_GARBAGE : Pr);
+        else
+            break;
     }
     fread(&page->P[REGISTERS_PER_PAGE], 4, 1, index->indexFile);
     _saveDiskPageInMemory(index, page);
@@ -436,33 +443,33 @@ DiskPage *_getPage(Index *index, int32_t rnn)
  * else returns NOT_FOUND
 */
 Result _binaryNodeSearch(DiskPage *page,
-                         int32_t key, 
-                         Register **foundReg, 
+                         int32_t key,
+                         Register **foundReg,
                          int *pos)
 {
     int begin = 0;
-    int end = page->nroChavesIndexadas-1;
+    int end = page->nroChavesIndexadas - 1;
     int middle = 0;
-    while(begin <= end)
+    while (begin <= end)
     {
         middle = (begin + end) / 2;
-        if(page->regs[middle]->C == key)
+        if (page->regs[middle]->C == key)
         {
             *foundReg = page->regs[middle];
             return FOUND;
         }
-        if(page->regs[middle]->C < key)
+        if (page->regs[middle]->C < key)
             begin = middle + 1;
         else
             end = middle - 1;
     }
-    if(pos != NULL)
+    if (pos != NULL)
     {
-        if(page->regs[middle]->C > key) 
+        if (page->regs[middle]->C > key)
             *pos = middle;
-        else 
-            *pos = middle+1;
-    }   
+        else
+            *pos = middle + 1;
+    }
     return NOT_FOUND;
 }
 
@@ -474,7 +481,7 @@ Result _searchRegister(Index *index,
     if (currentRNN == -1)
         return NOT_FOUND;
 
-    else 
+    else
     {
         int pos;
         DiskPage *node = _getPage(index, currentRNN);

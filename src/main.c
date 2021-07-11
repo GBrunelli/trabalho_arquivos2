@@ -4,7 +4,6 @@
 #include "search.h"
 #include "insert.h"
 
-
 int main(void)
 {
     // Checking which routine should we execute

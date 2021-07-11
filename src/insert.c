@@ -4,7 +4,6 @@
 #include "utils.h"
 #include "b_tree.h"
 
-
 void insertLines()
 {
     // Getting stdin data for number of new registers and filename
@@ -35,7 +34,8 @@ void insertLines()
         offset = writeLine(l, binFile, BIN);
 
         // Inserting index into B Tree
-        if (!lineLogicallyRemoved(l)) {
+        if (!lineLogicallyRemoved(l))
+        {
             updateRegister(reg, indexedField, offset);
             insertRegister(index, reg);
         }
@@ -84,7 +84,8 @@ void insertCars()
         offset = writeCar(c, binFile, BIN);
 
         // Inserting index into B Tree
-        if (!carLogicallyRemoved(c)) {
+        if (!carLogicallyRemoved(c))
+        {
             updateRegister(reg, indexedField, offset);
             insertRegister(index, reg);
         }

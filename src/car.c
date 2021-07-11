@@ -145,7 +145,8 @@ void setCarFileStatus(FILE *file, char c)
     }
 }
 
-bool checkCarFileIntegrity(FILE* bin) {
+bool checkCarFileIntegrity(FILE *bin)
+{
     CarHeader *ch = newCarHeader();
     getCarHeader(ch, bin, BIN);
     bool integrity = !checkCarHeaderIntegrity(ch);
@@ -441,11 +442,13 @@ int printCar(Car *car, CarHeader *header)
 }
 
 // Returns the index (prefixo) transformed into an integer
-int32_t getCarIndex(Car *c) {
+int32_t getCarIndex(Car *c)
+{
     return convertePrefixo(c->prefixo);
 }
 
-bool carLogicallyRemoved(Car* c) {
+bool carLogicallyRemoved(Car *c)
+{
     if (c->removido == REMOVED)
         return true;
     return false;
@@ -525,5 +528,3 @@ int64_t writeCar(Car *car, FILE *file, Source from)
 }
 
 /* ## Functions related to searching using a specific struct field ## */
-
-

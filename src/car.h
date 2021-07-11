@@ -26,10 +26,10 @@ void setCarFileStatus(FILE *file, char c);
 // Verify if the file is consistent.
 // Returns 0 if it is inconsistent, or a value
 // different than zero if it is consistent
-int checkCarHeaderIntegrity(CarHeader* ch);
+int checkCarHeaderIntegrity(CarHeader *ch);
 
 // Check whether a binary car file is corrupted.
-bool checkCarFileIntegrity(FILE* bin);
+bool checkCarFileIntegrity(FILE *bin);
 
 /* ## Basic Car functions ## */
 

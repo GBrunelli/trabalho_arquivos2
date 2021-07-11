@@ -18,7 +18,7 @@ LineHeader *newLineHeader();
 void updateLineHeader(LineHeader *lh, FILE *file, Source from);
 
 // Check if a binary line file is corrupted
-bool checkLineFileIntegrity(FILE* bin);
+bool checkLineFileIntegrity(FILE *bin);
 
 // Check whether LineHeader status is '1' or '0'
 bool checkLineHeaderIntegrity(LineHeader *lh);
@@ -27,7 +27,7 @@ bool checkLineHeaderIntegrity(LineHeader *lh);
 void overwriteLineHeader(LineHeader *lh, FILE *file, Source source);
 
 // Returns the total amount of registers. Logically Removed + Non Logically Removed
-int getLineTotalRegisters(FILE* bin);
+int getLineTotalRegisters(FILE *bin);
 
 // Returns how many non logically removed registers there are.
 int getNRegisters(LineHeader *lh);
@@ -70,6 +70,6 @@ bool lineLogicallyRemoved(Line *l);
 /* ## Functions related to searching using a specific struct field ## */
 
 // Based on an specific searched value, check whether the current line matches
-bool checkIfLineMatches(Line *l, char* index);
+bool checkIfLineMatches(Line *l, char *index);
 
 #endif

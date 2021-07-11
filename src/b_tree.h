@@ -15,18 +15,18 @@ typedef enum _Result
     ERROR
 } Result;
 
-typedef struct _Index        Index;
-typedef struct _Register     Register;
+typedef struct _Index Index;
+typedef struct _Register Register;
 
 /**
  * Creates an empty index file, and set its status to inconsistent
 */
-Index *createIndex(FILE* idx);
+Index *createIndex(FILE *idx);
 
 /**
  * Opens an index file, and set its status to inconsistent
 */
-Index *openIndex(FILE* indexFile);
+Index *openIndex(FILE *indexFile);
 
 /**
  * Closes the index file, and set its status to consistent
@@ -36,12 +36,12 @@ void closeIndex(Index *index);
 /**
  * Create a new empty register and returns its pointer.
 */
-Register* newRegister();
+Register *newRegister();
 
 /**
  * Updates R with values for C and PR
 */
-void updateRegister(Register* r, int32_t C, int64_t Pr);
+void updateRegister(Register *r, int32_t C, int64_t Pr);
 
 /**
  * Retuns an index register with key C and value Pr
@@ -51,7 +51,7 @@ Register *createRegister(int32_t C, int64_t Pr);
 /**
  * Retuns the Pr of an specific register
 */
-int64_t getPR(Register* reg);
+int64_t getPR(Register *reg);
 
 /**
  * Insert a new register in the index file
@@ -71,7 +71,7 @@ int compareRegisters(const void *a, const void *b);
 
 /**
  * Frees all data related to Register R
-*/ 
+*/
 void freeRegister(Register *r);
 
 #endif
