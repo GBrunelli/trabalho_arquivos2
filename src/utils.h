@@ -42,6 +42,13 @@ void getMonthName(char *monthName, int month);
 // Example: "2010-05-21" -> "21 de maio de 2021".
 void tranformDate(char *date);
 
+void openFiles(FILE* bin, char* binFileName, char* binMode, FILE* index, char* indexFileName, char* indexMode, bool (*integrityChecker)(FILE*));
+
+void removeQuotations(char *str);
+void leftShift(char *string, int len);
+int isNULO(char *string);
+void fillWithGarbage(char *string, int len);
+
 // Functions given by the Professor.
 int convertePrefixo(char* str);
 void binarioNaTela(char *nomeArquivoBinario);

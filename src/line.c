@@ -89,7 +89,25 @@ int getNRemovedRegisters(LineHeader *lh)
     return lh->nroRegistrosRemovidos;
 }
 
-bool checkFileIntegrity(LineHeader *lh)
+int getLineTotalRegisters(FILE* bin) {
+    LineHeader *lh = newLineHeader();
+    updateLineHeader(lh, bin, BIN);
+    int nreg = getNRegisters(lh) + getNRemovedRegisters(lh);
+    freeLineHeader(lh);
+    
+    return nreg;
+}
+
+bool checkLineFileIntegrity(FILE* bin) {
+    LineHeader *lh = newLineHeader();
+    updateLineHeader(lh, bin, BIN);
+    bool integrity = !checkLineHeaderIntegrity(lh);
+    freeLineHeader(lh);
+
+    return integrity;
+}
+
+bool checkLineHeaderIntegrity(LineHeader *lh)
 {
     switch (lh->status)
     {

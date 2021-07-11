@@ -19,9 +19,9 @@ typedef struct _Index        Index;
 typedef struct _Register     Register;
 
 /**
- * Creates and opens an empty index file, and set its status to inconsistent
+ * Creates an empty index file, and set its status to inconsistent
 */
-Index *createIndex(char *indexFileName);
+Index *createIndex(FILE* idx);
 
 /**
  * Opens an index file, and set its status to inconsistent
@@ -31,7 +31,17 @@ Index *openIndex(char *indexFileName);
 /**
  * Closes the index file, and set its status to consistent
 */
-void *closeIndex(Index *index);
+void closeIndex(Index *index);
+
+/**
+ * Create a new empty register and returns its pointer.
+*/
+Register* newRegister();
+
+/**
+ * Updates R with values for C and PR
+*/
+void updateRegister(Register* r, int32_t C, int64_t Pr);
 
 /**
  * Retuns an index register with key C and value Pr
@@ -53,5 +63,10 @@ Result searchRegister(Index *index, int32_t key, Register **foundReg);
  * Compare 2 **registers
 */
 int compareRegisters(const void *a, const void *b);
+
+/**
+ * Frees all data related to Register R
+*/ 
+void freeRegister(Register *r);
 
 #endif

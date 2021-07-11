@@ -17,11 +17,17 @@ LineHeader *newLineHeader();
 // Currently supported sources: BIN, CSV
 void updateLineHeader(LineHeader *lh, FILE *file, Source from);
 
+// Check if a binary line file is corrupted
+bool checkLineFileIntegrity(FILE* bin);
+
 // Check whether LineHeader status is '1' or '0'
-bool checkFileIntegrity(LineHeader *lh);
+bool checkLineHeaderIntegrity(LineHeader *lh);
 
 // Overwrite old LineHeader from file with a newer, currently in-memory one.
 void overwriteLineHeader(LineHeader *lh, FILE *file, Source source);
+
+// Returns the total amount of registers. Logically Removed + Non Logically Removed
+int getLineTotalRegisters(FILE* bin);
 
 // Returns how many non logically removed registers there are.
 int getNRegisters(LineHeader *lh);

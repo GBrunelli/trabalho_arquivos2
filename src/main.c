@@ -1,7 +1,10 @@
 // #include "car_routines.h"
-#include "line_routines.h"
-#include "car_routines.h"
+#include "index.h"
 #include "project.h"
+
+// #include "search.h"
+// #include "insert.h"
+
 
 int main(void)
 {
@@ -13,22 +16,22 @@ int main(void)
     switch (n_routine)
     {
     case 9:
-        generateIndexCars();
+        indexCars();
         break;
     case 10:
-        generateIndexLines();
+        indexLines();
         break;
     case 11:
-        searchIndexedCars();
+        // searchCar();
         break;
     case 12:
-        searchIndexedLines();
+        // searchLine();
         break;
     case 13:
-        insertAndIndexCars();
+        // insertCars();
         break;
     case 14:
-        insertAndIndexLines();
+        // insertLines();
         break;
     }
 

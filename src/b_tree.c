@@ -116,10 +116,10 @@ Index *openIndex(char *indexFileName)
     return index;
 }
 
-Index *createIndex(char *indexFileName)
+Index *createIndex(FILE* idx)
 {
     Index *index = malloc(sizeof(Index));
-    index->indexFile = fopen(indexFileName, "wb+");
+    index->indexFile = idx;
     index->header = malloc(sizeof(IndexHeader));
     index->header->noRaiz = -1;
     index->header->RRNproxNo = 0;
@@ -130,7 +130,7 @@ Index *createIndex(char *indexFileName)
     return index;
 }
 
-void *closeIndex(Index *index)
+void closeIndex(Index *index)
 {
     index->header->status = true;
     _writeIndexHeader(index);
@@ -147,6 +147,11 @@ void *closeIndex(Index *index)
     free(index);
 }
 
+Register* newRegister() {
+    Register *reg = calloc(1, sizeof(Register));
+    return reg;
+}
+
 Register *createRegister(int32_t C, int64_t Pr)
 {
     Register *reg = malloc(sizeof(Register));
@@ -155,11 +160,20 @@ Register *createRegister(int32_t C, int64_t Pr)
     return reg;
 }
 
+void updateRegister(Register* reg, int32_t C, int64_t Pr) {
+    reg->C = C;
+    reg->Pr = Pr;
+}
+
 int compareRegisters(const void * a, const void * b)
 {
     Register **regA = (Register**) a;
     Register **regB = (Register**) b;
     return (*regA)->C - (*regB)->C;
+}
+
+void freeRegister(Register *r) {
+    free(r);
 }
 
 DiskPage *_createDiskPage(Index *index, bool folha)
@@ -196,6 +210,9 @@ Result insertRegister(Index *index, Register *reg)
         DiskPage *promoDiskPageChild;
         _insert(index, index->header->noRaiz, reg, &reg, &promoDiskPageChild);
     }
+
+    // ? INSERI ISSO AQUI PQ NÃO COMPILAVA SEM
+    return FOUND;
 }
 
 void _splitNode(Index *index,

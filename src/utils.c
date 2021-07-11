@@ -1,6 +1,32 @@
 #include "project.h"
 #include "utils.h"
 
+
+void openFiles(FILE* bin, char* binFileName, char* binMode, FILE* index, char* indexFileName, char* indexMode, bool (*integrityChecker)(FILE*)) {
+    bin = fopen(binFileName, binMode);
+    if (bin == NULL)
+    {
+        printf("Falha no processamento do arquivo.\n");
+        exit(0);
+    }
+
+    index = fopen(indexFileName, indexMode);
+    if (index == NULL)
+    {
+        fclose(bin);
+        printf("Falha no processamento do arquivo.\n");
+        exit(0);
+    }
+
+    // Checking file integrity
+    if (integrityChecker(bin)) {
+        printf("Falha no processamento do arquivo.\n");
+        fclose(bin);
+        fclose(index);
+        exit(0);
+    }
+}
+
 // Get the month member given its number
 void getMonthName(char *monthName, int month)
 {
@@ -9,51 +35,39 @@ void getMonthName(char *monthName, int month)
     case 1:
         strcpy(monthName, "janeiro");
         break;
-
     case 2:
         strcpy(monthName, "fevereiro");
         break;
-
     case 3:
         strcpy(monthName, "março");
         break;
-
     case 4:
         strcpy(monthName, "abril");
         break;
-
     case 5:
         strcpy(monthName, "maio");
         break;
-
     case 6:
         strcpy(monthName, "junho");
         break;
-
     case 7:
         strcpy(monthName, "julho");
         break;
-
     case 8:
         strcpy(monthName, "agosto");
         break;
-
     case 9:
         strcpy(monthName, "setembro");
         break;
-
     case 10:
         strcpy(monthName, "outubro");
         break;
-
     case 11:
         strcpy(monthName, "novembro");
         break;
-
     case 12:
         strcpy(monthName, "dezembro");
         break;
-
     default:
         break;
     }
@@ -119,7 +133,7 @@ int convertePrefixo(char* str) {
             E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
             S, T, U, V, W, X, Y, Z
         */
-        int cur_digit;
+        int cur_digit = 0;
         /* Checa pelos digitos normais e os converte para números */
         if(str[i] >= '0' && str[i] <= '9')
             cur_digit = str[i] - '0';
@@ -145,6 +159,51 @@ int convertePrefixo(char* str) {
 
     return result;
 
+}
+
+// Remove "Quotation Marks" from a string.
+void removeQuotations(char *str)
+{
+    // Checking whether string has quotation marks
+    if (str[0] != '"')
+        return;
+
+    int len = strlen(str);
+    for (int i = 1; i < len; i++)
+    {
+        str[i - 1] = str[i];
+    }
+
+    str[len - 2] = '\0';
+}
+
+// Shifts a string to left.
+void leftShift(char *string, int len)
+{
+    int i;
+    for (i = 1; i < len; i++)
+    {
+        string[i - 1] = string[i];
+    }
+    string[len - 1] = 0;
+}
+
+int isNULO(char *string)
+{
+    if (!strcmp(string, "NULO"))
+    {
+        return 1;
+    }
+    return 0;
+}
+
+void fillWithGarbage(char *string, int len)
+{
+    string[0] = 0;
+    for (int i = 1; i < len; i++)
+    {
+        string[i] = '@';
+    }
 }
 
 void binarioNaTela(char *nomeArquivoBinario)

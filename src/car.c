@@ -35,7 +35,7 @@ struct _Car
 /* ## Functions to deal with Car headers ## */
 
 // Gets the sum of active and removed register in the bin file
-int getTotalNumberRegisters(FILE *file)
+int getCarNRegisters(FILE *file)
 {
     CarHeader *header = newCarHeader();
     getCarHeader(header, file, BIN);
@@ -122,7 +122,7 @@ void writeCarHeader(CarHeader *carHeader, FILE *file, Source from)
 }
 
 // Set the status of a file as consistent '1' or inconsistent '0'
-void setFileStatus(FILE *file, char c)
+void setCarFileStatus(FILE *file, char c)
 {
     // if the char is valid
     if (c == REMOVED || c == NOT_REMOVED)
@@ -135,10 +135,19 @@ void setFileStatus(FILE *file, char c)
     }
 }
 
+bool checkCarFileIntegrity(FILE* bin) {
+    CarHeader *ch = newCarHeader();
+    getCarHeader(ch, bin, BIN);
+    bool integrity = !checkCarHeaderIntegrity(ch);
+    freeCarHeader(ch);
+
+    return integrity;
+}
+
 // Verify if the file is consistent.
 // Returns 0 if it is inconsistent, or a value
 // different than zero if it is consistent
-int checkCarFileIntegrity(CarHeader *header)
+int checkCarHeaderIntegrity(CarHeader *header)
 {
     if (header->status == STATUS_CONSISTENT)
         return 1;

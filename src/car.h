@@ -11,7 +11,7 @@ typedef struct _Car Car;
 /* ## Functions to deal with Car headers ## */
 
 // Gets the sum of active and removed register in the bin file
-int getTotalNumberRegisters(FILE *file);
+int getCarNRegisters(FILE *file);
 
 // Alocates memory and initializes the struct CarHeader
 CarHeader *newCarHeader();
@@ -21,12 +21,15 @@ CarHeader *newCarHeader();
 CarHeader *getCarHeader(CarHeader *carHeader, FILE *file, Source from);
 
 // Set the status of a file as consistent '1' or inconsistent '0'
-void setFileStatus(FILE *file, char c);
+void setCarFileStatus(FILE *file, char c);
 
 // Verify if the file is consistent.
 // Returns 0 if it is inconsistent, or a value
 // different than zero if it is consistent
-int checkCarFileIntegrity(CarHeader *header);
+int checkCarHeaderIntegrity(CarHeader* ch);
+
+// Check whether a binary car file is corrupted.
+bool checkCarFileIntegrity(FILE* bin);
 
 /* ## Basic Car functions ## */
 
