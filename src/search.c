@@ -18,9 +18,8 @@ void searchLine(void)
     Index* index = openIndex(indexFile);
 
     // Searching inside our index for the register
-    Register *reg = newRegister();
+    Register *reg;
     Result result = searchRegister(index, indexedField, &reg);
-    closeIndex(index);
 
     // If no result was found, finish program
     if (result == NOT_FOUND) {
@@ -40,8 +39,8 @@ void searchLine(void)
         freeLine(l);
     }
 
+    closeIndex(index);
     fclose(bin);
-    freeRegister(reg);
 }
 
 void searchCar(void)
@@ -61,9 +60,8 @@ void searchCar(void)
     Index* index = openIndex(indexFile);
 
     // Searching inside our index for the register
-    Register *reg = newRegister();
+    Register *reg;
     Result result = searchRegister(index, indexedField, &reg);
-    closeIndex(index);
 
     // If no result was found, finish program
     if (result == NOT_FOUND) {
@@ -83,6 +81,6 @@ void searchCar(void)
         freeCar(c);
     }
 
+    closeIndex(index);
     fclose(bin);
-    freeRegister(reg);
 }

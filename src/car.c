@@ -435,6 +435,7 @@ int printCar(Car *car, CarHeader *header)
     printField(header, car, CATEGORIA);
     printField(header, car, DATA);
     printField(header, car, QTD_LUGARES);
+    printf("\n");
 
     return 1;
 }
