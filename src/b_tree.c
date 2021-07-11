@@ -71,7 +71,7 @@ void _writeIndexHeader(Index* index)
 
 void _writeDiskPage(Index* index, DiskPage* page)
 {
-    int64_t offset = page->RRNdoNo * DISK_PAGE_SIZE;
+    int64_t offset = (page->RRNdoNo+1) * DISK_PAGE_SIZE;
     FILE* indexFile = index->indexFile;
     fseek(indexFile, offset, SEEK_SET);
     char folha = page->folha ? '1' : '0';
