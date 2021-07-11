@@ -180,7 +180,7 @@ int64_t _readCarFromBIN(Car *car, FILE *file)
     if (car->removido == REMOVED)
     {
         fseek(file, car->tamanhoRegistro, SEEK_CUR);
-        return NULL;
+        return -1;
     }
     // read the data
     fread(&car->prefixo, sizeof(car->prefixo), 1, file);

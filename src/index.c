@@ -13,6 +13,8 @@ void indexLines() {
 
     // Getting number of registers to be inserted
     int nreg = getLineTotalRegisters(binFile);
+
+    // Creating containers
     Index* index = createIndex(indexFile);
     Line *l = newLine();
     Register *reg = newRegister();
@@ -20,11 +22,12 @@ void indexLines() {
     int offset = 0;
     for (int rrn = 0; rrn < nreg; rrn++) {
         offset = updateLine(l, binFile, BIN);
-        if (!logicallyRemoved(l)) {
+        if (!lineLogicallyRemoved(l)) {
             updateRegister(reg, getLineIndex(l), offset);
             insertRegister(index, reg);
         }
     }
+
     freeLine(l);
     freeRegister(reg);
     closeIndex(index);
@@ -45,7 +48,7 @@ void indexCars() {
 
     // Creating containers
     Index* index = createIndex(indexFile);
-    Line *c = newCar();
+    Car *c = newCar();
     Register *reg = newRegister();
 
     int offset = 0;
@@ -56,6 +59,7 @@ void indexCars() {
             insertRegister(index, reg);
         }
     }
+
     freeCar(c);
     freeRegister(reg);
     closeIndex(index);
