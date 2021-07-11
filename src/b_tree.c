@@ -209,14 +209,8 @@ Result insertRegister(Index *index, Register *reg)
         _saveDiskPageInMemory(index, page);
         _writeDisckPage(index, page);
     }
-    else 
-    {
-        DiskPage *promoDiskPageChild;
-        _insert(index, index->header->noRaiz, reg, &reg, &promoDiskPageChild);
-    }
-
-    // ? INSERI ISSO AQUI PQ NÃO COMPILAVA SEM
-    return FOUND;
+    DiskPage *promoDiskPageChild;
+    return _insert(index, index->header->noRaiz, reg, &reg, &promoDiskPageChild);
 }
 
 void _splitNode(Index *index,
