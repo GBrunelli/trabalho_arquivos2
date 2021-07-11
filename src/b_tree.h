@@ -62,7 +62,7 @@ Result insertRegister(Index *index, Register *reg);
  * Searches for a key in the index file,
  * if a register is founds, returns it 
 */
-Result searchRegister(Index *index, int32_t key, Register **foundReg);
+Result searchRegister(Index *index, int32_t key, Register *foundReg);
 
 /**
  * Compare 2 **registers

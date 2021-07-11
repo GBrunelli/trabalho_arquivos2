@@ -49,7 +49,7 @@ DiskPage *_getPage(Index *index, int32_t rnn);
 
 Result _binaryNodeSearch(DiskPage *page,
                          int32_t key, 
-                         Register **foundReg, 
+                         Register *foundReg, 
                          int *pos);
 
 void _writeGarbage(FILE* file, int bytes)
@@ -379,13 +379,10 @@ Result _insert(Index *index,
 DiskPage *_getPage(Index *index, int32_t rnn)
 {
     int nPages = index->nSavedPages;
-    while (nPages)
+    for (int i = 0; i < nPages; i++)
     {
-        if (index->savedPages[nPages-1]->RRNdoNo == rnn) 
-        {
-            return index->savedPages[nPages-1];
-        }
-        nPages--;
+        if(index->savedPages[i]->RRNdoNo == rnn)
+            index->savedPages[i];
     }
     // if the disk page is not on memory, recover it
     DiskPage *page = malloc(sizeof(DiskPage));
@@ -414,8 +411,8 @@ DiskPage *_getPage(Index *index, int32_t rnn)
         int64_t Pr;
         fread(&C, 4, 1, index->indexFile);
         fread(&Pr, 8, 1, index->indexFile);
-        bool CIsGarbage = (C == INT_32_GARBAGE);
-        bool PrIsGarbage = (Pr == INT_64_GARBAGE);
+        bool CIsGarbage = (C == -1);
+        bool PrIsGarbage = (Pr == -1);
         if(!(CIsGarbage || CIsGarbage))
             page->regs[i] = createRegister(CIsGarbage ? INT_32_GARBAGE : C, 
             PrIsGarbage ? INT_64_GARBAGE : Pr);
@@ -433,7 +430,7 @@ DiskPage *_getPage(Index *index, int32_t rnn)
 */
 Result _binaryNodeSearch(DiskPage *page,
                          int32_t key, 
-                         Register **foundReg, 
+                         Register *foundReg, 
                          int *pos)
 {
     int begin = 0;
@@ -444,7 +441,8 @@ Result _binaryNodeSearch(DiskPage *page,
         middle = (begin + end) / 2;
         if(page->regs[middle]->C == key)
         {
-            *foundReg = page->regs[middle];
+            foundReg->C = page->regs[middle]->C;
+            foundReg->Pr = page->regs[middle]->Pr;
             return FOUND;
         }
         if(page->regs[middle]->C < key)
@@ -465,7 +463,7 @@ Result _binaryNodeSearch(DiskPage *page,
 Result _searchRegister(Index *index,
                        int32_t currentRNN,
                        int32_t key,
-                       Register **foundReg)
+                       Register *foundReg)
 {
     if (currentRNN == -1)
         return NOT_FOUND;
@@ -485,7 +483,7 @@ Result _searchRegister(Index *index,
     }
 }
 
-Result searchRegister(Index *index, int32_t key, Register **foundReg)
+Result searchRegister(Index *index, int32_t key, Register *foundReg)
 {
     return _searchRegister(index, index->header->noRaiz, key, foundReg);
 }
