@@ -49,7 +49,7 @@ DiskPage *_getPage(Index *index, int32_t rnn);
 
 Result _binaryNodeSearch(DiskPage *page,
                          int32_t key, 
-                         Register *foundReg, 
+                         Register **foundReg, 
                          int *pos);
 
 void _writeGarbage(FILE* file, int bytes)
@@ -430,7 +430,7 @@ DiskPage *_getPage(Index *index, int32_t rnn)
 */
 Result _binaryNodeSearch(DiskPage *page,
                          int32_t key, 
-                         Register *foundReg, 
+                         Register **foundReg, 
                          int *pos)
 {
     int begin = 0;
@@ -441,8 +441,7 @@ Result _binaryNodeSearch(DiskPage *page,
         middle = (begin + end) / 2;
         if(page->regs[middle]->C == key)
         {
-            foundReg->C = page->regs[middle]->C;
-            foundReg->Pr = page->regs[middle]->Pr;
+            *foundReg = page->regs[middle];
             return FOUND;
         }
         if(page->regs[middle]->C < key)
@@ -463,7 +462,7 @@ Result _binaryNodeSearch(DiskPage *page,
 Result _searchRegister(Index *index,
                        int32_t currentRNN,
                        int32_t key,
-                       Register *foundReg)
+                       Register **foundReg)
 {
     if (currentRNN == -1)
         return NOT_FOUND;
@@ -483,7 +482,7 @@ Result _searchRegister(Index *index,
     }
 }
 
-Result searchRegister(Index *index, int32_t key, Register *foundReg)
+Result searchRegister(Index *index, int32_t key, Register **foundReg)
 {
     return _searchRegister(index, index->header->noRaiz, key, foundReg);
 }
