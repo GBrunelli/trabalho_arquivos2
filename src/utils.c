@@ -2,27 +2,27 @@
 #include "utils.h"
 
 
-void openFiles(FILE* bin, char* binFileName, char* binMode, FILE* index, char* indexFileName, char* indexMode, bool (*integrityChecker)(FILE*)) {
-    bin = fopen(binFileName, binMode);
-    if (bin == NULL)
+void openFiles(FILE** bin, char* binFileName, char* binMode, FILE** index, char* indexFileName, char* indexMode, bool (*integrityChecker)(FILE*)) {
+    *bin = fopen(binFileName, binMode);
+    if (*bin == NULL)
     {
         printf("Falha no processamento do arquivo.\n");
         exit(0);
     }
 
-    index = fopen(indexFileName, indexMode);
-    if (index == NULL)
+    *index = fopen(indexFileName, indexMode);
+    if (*index == NULL)
     {
-        fclose(bin);
+        fclose(*bin);
         printf("Falha no processamento do arquivo.\n");
         exit(0);
     }
 
     // Checking file integrity
-    if (integrityChecker(bin)) {
+    if (integrityChecker(*bin)) {
         printf("Falha no processamento do arquivo.\n");
-        fclose(bin);
-        fclose(index);
+        fclose(*bin);
+        fclose(*index);
         exit(0);
     }
 }

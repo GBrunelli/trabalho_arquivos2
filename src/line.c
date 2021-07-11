@@ -170,12 +170,12 @@ Line *newLine()
 }
 
 // Update Line from BIN file, uses current offset by default
-FuncStatus _updateLineFromBin(Line *l, FILE *file)
+int64_t _updateLineFromBin(Line *l, FILE *file)
 {
     if (l == NULL)
-        return UNKNOWN_ERR;
+        return -1;
     if (file == NULL)
-        return UNKNOWN_ERR;
+        return -1;
 
     // if the pointer is pointing at the header, set the pointer for the first car in the file
     long long position = ftell(file);
@@ -194,11 +194,11 @@ FuncStatus _updateLineFromBin(Line *l, FILE *file)
     l->nomeLinha[l->tamanhoNome] = '\0';
     l->nomeCor[l->tamanhoCor] = '\0';
 
-    return OK;
+    return offset;
 }
 
 // Update Line from the Command Line (stdin). Consumes current stdin buffer
-FuncStatus _updateLineFromCLI(Line *l)
+int64_t _updateLineFromCLI(Line *l)
 {
     // Initializing zeroed char arrays and then reading from stdinput
     char codLinha[5] = {0};
@@ -241,10 +241,10 @@ FuncStatus _updateLineFromCLI(Line *l)
     strcpy(l->nomeLinha, nomeLinha);
     strcpy(l->nomeCor, corLinha);
 
-    return OK;
+    return 1;
 }
 
-FuncStatus updateLine(Line *l, FILE *file, Source from)
+int64_t updateLine(Line *l, FILE *file, Source from)
 {
     switch (from)
     {
@@ -253,7 +253,7 @@ FuncStatus updateLine(Line *l, FILE *file, Source from)
     case CLI:
         return _updateLineFromCLI(l);
     }
-    return UNKNOWN_ERR;
+    return -1;
 }
 
 // Writes Line to end of binary file.
