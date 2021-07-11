@@ -7,5 +7,8 @@ run:
 clear:
 	rm *.bin exec
 
+debug:
+	gcc -g src/*.c -lm -o tests/exec
+
 zip:
 	zip exercicio.zip src/*.c src/*.h Makefile
