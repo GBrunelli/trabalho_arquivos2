@@ -38,25 +38,28 @@ void indexCars() {
     char binFileName[MAX_STRING_SIZE], indexFileName[MAX_STRING_SIZE];
     FILE *binFile = NULL, *indexFile = NULL;
     scanf("%s %s", binFileName, indexFileName);
-    openFiles(&binFile, binFileName, "rb", &indexFile, indexFileName, "wb+", checkLineFileIntegrity);
+    openFiles(&binFile, binFileName, "rb", &indexFile, indexFileName, "wb+", checkCarFileIntegrity);
 
     // Getting number of registers to be inserted
-    int nreg = getLineTotalRegisters(binFile);
-    int offset = 0;
+    int nreg = getCarNRegisters(binFile);
+
+    // Creating containers
     Index* index = createIndex(indexFile);
-    Line *l = newLine();
+    Line *c = newCar();
+    Register *reg = newRegister();
+
+    int offset = 0;
     for (int rrn = 0; rrn < nreg; rrn++) {
-        offset = updateLine(l, binFile, BIN);
-        if (!logicallyRemoved(l)) {
-            Register *reg = createRegister(getLineIndex(l), offset);
+        offset = readCar(c, binFile, BIN);
+        if (!carLogicallyRemoved(c)) {
+            updateRegister(reg, getCarIndex(c), offset);
             insertRegister(index, reg);
-            free(reg);
         }
     }
-
-    freeLine(l);
-    fclose(binFile);
+    freeCar(c);
+    freeRegister(reg);
     closeIndex(index);
+    fclose(binFile);
 
     binarioNaTela(indexFileName);
 }

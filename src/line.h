@@ -65,7 +65,7 @@ FuncStatus writeLine(Line *l, FILE *file, Source from);
 int32_t getLineIndex(Line *l);
 
 // Checks whether a line is logically removed
-bool logicallyRemoved(Line *l);
+bool lineLogicallyRemoved(Line *l);
 
 /* ## Functions related to searching using a specific struct field ## */
 

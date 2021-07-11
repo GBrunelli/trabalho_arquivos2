@@ -12,6 +12,7 @@
         "bitset": "cpp",
         "utils.h": "c",
         "insert.h": "c",
-        "search.h": "c"
+        "search.h": "c",
+        "car.h": "c"
     }
 }

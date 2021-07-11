@@ -38,10 +38,16 @@ Car *newCar();
 
 // Reads a car at the current file pointer from a source file. For bin files, if
 // the pointer is pointing at the header, it will read the first car in the file.
-Car *readCar(Car *c, FILE *file, Source From);
+int64_t readCar(Car *c, FILE *file, Source From);
 
 // Prints Car. Checks if Car is logically removed and also deals with nulls.
 int printCar(Car *car, CarHeader *header);
+
+// Checks whether a car is logically removed
+bool carLogicallyRemoved(Car *c);
+
+// Returns the index (prefixo) transformed into an integer
+int32_t getCarIndex(Car *c);
 
 // Free all memory associated with a Car.
 void freeCar(Car *c);

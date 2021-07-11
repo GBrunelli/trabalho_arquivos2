@@ -324,7 +324,7 @@ int32_t getLineIndex(Line *l)
 }
 
 // Prints Car. Checks if Car is logically removed and also deals with nulls.
-bool logicallyRemoved(Line *l)
+bool lineLogicallyRemoved(Line *l)
 {
     if (l->removido == REMOVED)
         return true;

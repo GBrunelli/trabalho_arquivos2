@@ -166,7 +166,7 @@ Car *newCar()
 }
 
 // Reads the next car at the current file pointer
-Car *_readCarFromBIN(Car *car, FILE *file)
+int64_t _readCarFromBIN(Car *car, FILE *file)
 {
     // if the pointer is pointing at the header, set the pointer for the first car in the file
     long long position = ftell(file);
@@ -191,11 +191,11 @@ Car *_readCarFromBIN(Car *car, FILE *file)
     fread(&car->modelo, car->tamanhoModelo, 1, file);
     fread(&car->tamanhoCategoria, sizeof(car->tamanhoCategoria), 1, file);
     fread(&car->categoria, car->tamanhoCategoria, 1, file);
-    return car;
+    return offset;
 }
 
 // Reads the next car from the stantart input
-Car *_readCarFromCLI(Car *car)
+int64_t _readCarFromCLI(Car *car)
 {
     // Initializing zeroed char arrays and then reading from stdinput
     char prefixo[5] = {0};
@@ -263,12 +263,12 @@ Car *_readCarFromCLI(Car *car)
     // calculates the size of the register
     car->tamanhoRegistro = STRUCT_BASE_CAR_SIZE + lenghtModelo + lenghtCategoria;
 
-    return car;
+    return -1;
 }
 
 // Reads a car at the current file pointer from a source file. For bin files, if
 // the pointer is pointing at the header, it will read the first car in the file.
-Car *readCar(Car *car, FILE *file, Source from)
+int64_t readCar(Car *car, FILE *file, Source from)
 {
     switch (from)
     {
@@ -281,7 +281,7 @@ Car *readCar(Car *car, FILE *file, Source from)
     default:
         break;
     }
-    return NULL;
+    return -1;
 }
 
 // Prints Car. Checks if Car is logically removed and also deals with nulls.
@@ -291,6 +291,17 @@ int printCar(Car *car, CarHeader *header)
     if (car->removido == REMOVED)
         return 0;
     return 1;
+}
+
+// Returns the index (prefixo) transformed into an integer
+int32_t getCarIndex(Car *c) {
+    return convertePrefixo(c->prefixo);
+}
+
+bool carLogicallyRemoved(Car* c) {
+    if (c->removido == REMOVED)
+        return true;
+    return false;
 }
 
 // Free all memory associated with a Car.
