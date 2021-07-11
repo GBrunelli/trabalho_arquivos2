@@ -128,7 +128,7 @@ Index *createIndex(FILE* idx)
     index->indexFile = idx;
     index->header = malloc(sizeof(IndexHeader));
     index->header->noRaiz = -1;
-    index->header->RRNproxNo = -1;
+    index->header->RRNproxNo = 0;
     index->header->status = false;
     index->savedPages = NULL;
     index->nSavedPages = 0;
@@ -197,7 +197,7 @@ DiskPage *_createDiskPage(Index *index, bool folha)
     for (int i = 0; i < REGISTERS_PER_PAGE; i++)
         page->regs[i] = NULL;
     
-    page->RRNdoNo = ++index->header->RRNproxNo;
+    page->RRNdoNo = index->header->RRNproxNo++;
     return page;
 }
 
