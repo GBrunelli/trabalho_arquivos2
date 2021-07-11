@@ -59,7 +59,7 @@ void freeCarHeader(CarHeader *carHeader);
 
 // Writes a Car to a specific source
 // Currently only supports BIN files.
-void writeCar(Car *c, FILE *file, Source from);
+int64_t writeCar(Car *car, FILE *file, Source from);
 
 // Writes a CarHeader to a specific source
 // Currently only supports BIN files.

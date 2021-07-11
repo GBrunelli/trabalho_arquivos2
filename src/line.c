@@ -170,7 +170,7 @@ Line *newLine()
 }
 
 // Update Line from BIN file, uses current offset by default
-int64_t _updateLineFromBin(Line *l, FILE *file, int64_t pre_offset)
+int64_t _updateLineFromBin(Line *l, FILE *file, int64_t customOffset)
 {
     if (l == NULL)
         return -1;
@@ -181,8 +181,8 @@ int64_t _updateLineFromBin(Line *l, FILE *file, int64_t pre_offset)
     long long position = ftell(file);
     long long offset = position < LINE_HEADER_OFFSET ? LINE_HEADER_OFFSET : position;
     
-    // Checking if offset was provided
-    offset = pre_offset != NO_OFFSET ? pre_offset : offset;
+    // Checking if custom offset was provided
+    offset = customOffset != NO_OFFSET ? customOffset : offset;
 
     fseek(file, offset, SEEK_SET);
 
@@ -248,12 +248,12 @@ int64_t _updateLineFromCLI(Line *l)
     return 1;
 }
 
-int64_t updateLine(Line *l, FILE *file, Source from, int64_t pre_offset)
+int64_t updateLine(Line *l, FILE *file, Source from, int64_t customOffset)
 {
     switch (from)
     {
     case BIN:
-        return _updateLineFromBin(l, file, pre_offset);
+        return _updateLineFromBin(l, file, customOffset);
     case CLI:
         return _updateLineFromCLI(l);
     }
@@ -261,7 +261,7 @@ int64_t updateLine(Line *l, FILE *file, Source from, int64_t pre_offset)
 }
 
 // Writes Line to end of binary file.
-FuncStatus _writeLineToBin(Line *l, FILE *file)
+int64_t _writeLineToBin(Line *l, FILE *file)
 {
     // gets the information from the header and update it
     LineHeader *lh = newLineHeader();
@@ -288,10 +288,10 @@ FuncStatus _writeLineToBin(Line *l, FILE *file)
     fwrite(&l->tamanhoCor, sizeof(l->tamanhoCor), 1, file);
     fwrite(&l->nomeCor, l->tamanhoCor, 1, file);
 
-    return OK;
+    return byteOffset;
 }
 
-FuncStatus writeLine(Line *l, FILE *file, Source from)
+int64_t writeLine(Line *l, FILE *file, Source from)
 {
     switch (from)
     {
@@ -303,7 +303,7 @@ FuncStatus writeLine(Line *l, FILE *file, Source from)
         break;
     }
 
-    return UNKNOWN_ERR;
+    return -1;
 }
 
 // Matches each cardType with its text counterpart

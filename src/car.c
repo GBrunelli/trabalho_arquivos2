@@ -176,14 +176,14 @@ Car *newCar()
 }
 
 // Reads the next car at the current file pointer
-int64_t _readCarFromBIN(Car *car, FILE *file, int64_t pre_offset)
+int64_t _readCarFromBIN(Car *car, FILE *file, int64_t customOffset)
 {
     // if the pointer is pointing at the header, set the pointer for the first car in the file
     long long position = ftell(file);
     long long offset = position < STRUCT_CAR_HEADER_SIZE ? STRUCT_CAR_HEADER_SIZE : position;
 
     // Checking if offset was provided
-    offset = pre_offset != NO_OFFSET ? pre_offset : offset;
+    offset = customOffset != NO_OFFSET ? customOffset : offset;
 
     fseek(file, offset, SEEK_SET);
 
@@ -282,12 +282,12 @@ int64_t _readCarFromCLI(Car *car)
 
 // Reads a car at the current file pointer from a source file. For bin files, if
 // the pointer is pointing at the header, it will read the first car in the file.
-int64_t readCar(Car *car, FILE *file, Source from, int64_t pre_offset)
+int64_t readCar(Car *car, FILE *file, Source from, int64_t customOffset)
 {
     switch (from)
     {
     case BIN:
-        return _readCarFromBIN(car, file, pre_offset);
+        return _readCarFromBIN(car, file, customOffset);
 
     case CLI:
         return _readCarFromCLI(car);
@@ -465,7 +465,7 @@ void freeCarHeader(CarHeader *carHeader)
 /* ## Functions related to writing Cars to different sources ## */
 
 // Writes a Car to end of binary file.
-void _writeCarToBin(Car *car, FILE *file)
+int64_t _writeCarToBin(Car *car, FILE *file)
 {
     // gets the information from the header and update it
     CarHeader *header = newCarHeader();
@@ -502,21 +502,25 @@ void _writeCarToBin(Car *car, FILE *file)
     fwrite(&car->modelo, car->tamanhoModelo, 1, file);
     fwrite(&car->tamanhoCategoria, sizeof(car->tamanhoCategoria), 1, file);
     fwrite(&car->categoria, car->tamanhoCategoria, 1, file);
+
+    return byteOffset;
 }
 
 // Writes a Car to a specific source
 // Currently only supports BIN files.
-void writeCar(Car *car, FILE *file, Source from)
+int64_t writeCar(Car *car, FILE *file, Source from)
 {
     switch (from)
     {
     case BIN:
-        _writeCarToBin(car, file);
+        return _writeCarToBin(car, file);
         break;
 
     default:
         break;
     }
+
+    return -1;
 }
 
 /* ## Functions related to searching using a specific struct field ## */

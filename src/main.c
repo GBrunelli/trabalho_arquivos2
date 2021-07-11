@@ -2,7 +2,7 @@
 
 #include "index.h"
 #include "search.h"
-// #include "insert.h"
+#include "insert.h"
 
 
 int main(void)
@@ -27,10 +27,10 @@ int main(void)
         searchLine();
         break;
     case 13:
-        // insertCars();
+        insertCars();
         break;
     case 14:
-        // insertLines();
+        insertLines();
         break;
     }
 

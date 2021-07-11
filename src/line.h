@@ -59,7 +59,7 @@ int64_t updateLine(Line *l, FILE *file, Source from, int64_t pre_offset);
 
 // Writes a Line to a specific source
 // Currently only supports BIN files.
-FuncStatus writeLine(Line *l, FILE *file, Source from);
+int64_t writeLine(Line *l, FILE *file, Source from);
 
 // Returns the index (codLinha)
 int32_t getLineIndex(Line *l);

@@ -56,7 +56,7 @@ void searchCar(void)
 
     // Opening files
     FILE *bin = NULL, *indexFile = NULL;
-    openFiles(&bin, binFileName, "rb+", &indexFile, indexFileName, "rb+", checkLineFileIntegrity);
+    openFiles(&bin, binFileName, "rb+", &indexFile, indexFileName, "rb+", checkCarFileIntegrity);
 
     Index* index = openIndex(indexFile);
 
