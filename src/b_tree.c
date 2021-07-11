@@ -1,8 +1,6 @@
 #include "b_tree.h"
 
 #define DISK_PAGE_SIZE 77
-#define INT_32_GARBAGE 1077952576
-#define INT_64_GARBAGE 4629771061636907072
 
 typedef struct _BTreeHeader IndexHeader;
 typedef struct _BTreeNode DiskPage;
@@ -427,8 +425,8 @@ DiskPage *_getPage(Index *index, int32_t rnn)
         bool CIsGarbage = (C == -1);
         bool PrIsGarbage = (Pr == -1);
         if (!(CIsGarbage || CIsGarbage))
-            page->regs[i] = createRegister(CIsGarbage ? INT_32_GARBAGE : C,
-                                           PrIsGarbage ? INT_64_GARBAGE : Pr);
+            page->regs[i] = createRegister(CIsGarbage ? -1 : C,
+                                           PrIsGarbage ? -1 : Pr);
         else
             break;
     }
