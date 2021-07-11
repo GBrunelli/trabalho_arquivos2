@@ -144,7 +144,7 @@ void closeIndex(Index *index)
     free(index->header);
     for (int i = 0; i < index->nSavedPages; i++)
     {
-        for (int j = 0; j < REGISTERS_PER_PAGE; j++)
+        for (int j = 0; j < index->savedPages[i]->nroChavesIndexadas; j++)
         {
             free(index->savedPages[i]->regs[j]);
         } 
@@ -194,6 +194,9 @@ DiskPage *_createDiskPage(Index *index, bool folha)
     page->nroChavesIndexadas = 1;
     for (int i = 0; i < ORDER; i++)
         page->P[i] = -1;  
+    for (int i = 0; i < REGISTERS_PER_PAGE; i++)
+        page->regs[i] = NULL;
+    
     page->RRNdoNo = ++index->header->RRNproxNo;
     return page;
 }
@@ -220,7 +223,10 @@ Result insertRegister(Index *index, Register *reg)
     else
     {
         DiskPage *promoDiskPageChild;
-        return _insert(index, index->header->noRaiz, regcpy, &regcpy, &promoDiskPageChild);
+        Result resultValue = _insert(index, index->header->noRaiz, regcpy, &regcpy, &promoDiskPageChild);
+        if (resultValue == ERROR)
+            free(regcpy);
+        return resultValue;
     }
     return ERROR;
 }

@@ -17,9 +17,10 @@ void openFiles(FILE** bin, char* binFileName, char* binMode, FILE** index, char*
         printf("Falha no processamento do arquivo.\n");
         exit(0);
     }
-
     // Checking file integrity
-    if (integrityChecker(*bin)) {
+    char c;
+    fread(&c, 1, 1,*index);
+    if (integrityChecker(*bin) || (c == '0')) {
         printf("Falha no processamento do arquivo.\n");
         fclose(*bin);
         fclose(*index);
