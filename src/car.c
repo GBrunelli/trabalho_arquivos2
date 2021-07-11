@@ -18,6 +18,16 @@ struct _CarHeader
     char descreveCategoria[20];
 };
 
+typedef enum _CarField
+{
+    PREFIXO,
+    DATA,
+    QTD_LUGARES,
+    COD_LINHA_CAR,
+    MODELO,
+    CATEGORIA
+} CarField;
+
 struct _Car
 {
     char removido;
@@ -166,11 +176,15 @@ Car *newCar()
 }
 
 // Reads the next car at the current file pointer
-int64_t _readCarFromBIN(Car *car, FILE *file)
+int64_t _readCarFromBIN(Car *car, FILE *file, int64_t pre_offset)
 {
     // if the pointer is pointing at the header, set the pointer for the first car in the file
     long long position = ftell(file);
     long long offset = position < STRUCT_CAR_HEADER_SIZE ? STRUCT_CAR_HEADER_SIZE : position;
+
+    // Checking if offset was provided
+    offset = pre_offset != NO_OFFSET ? pre_offset : offset;
+
     fseek(file, offset, SEEK_SET);
 
     // reads the field "removido" and "tamanhoRegistro" to analyse if car is valid
@@ -268,12 +282,12 @@ int64_t _readCarFromCLI(Car *car)
 
 // Reads a car at the current file pointer from a source file. For bin files, if
 // the pointer is pointing at the header, it will read the first car in the file.
-int64_t readCar(Car *car, FILE *file, Source from)
+int64_t readCar(Car *car, FILE *file, Source from, int64_t pre_offset)
 {
     switch (from)
     {
     case BIN:
-        return _readCarFromBIN(car, file);
+        return _readCarFromBIN(car, file, pre_offset);
 
     case CLI:
         return _readCarFromCLI(car);
@@ -284,12 +298,144 @@ int64_t readCar(Car *car, FILE *file, Source from)
     return -1;
 }
 
+CarField getCarField(char *providedField)
+{
+    if (!strcmp(providedField, "prefixo"))
+    {
+        return PREFIXO;
+    }
+    if (!strcmp(providedField, "data"))
+    {
+        return DATA;
+    }
+    if (!strcmp(providedField, "quantidadeLugares"))
+    {
+        return QTD_LUGARES;
+    }
+    if (!strcmp(providedField, "linha"))
+    {
+        return COD_LINHA_CAR;
+    }
+    if (!strcmp(providedField, "modelo"))
+    {
+        return MODELO;
+    }
+    if (!strcmp(providedField, "categoria"))
+    {
+        return CATEGORIA;
+    }
+    return 0;
+}
+
+// Get a new string with value of the field of a Car.
+// The string must be freed by the user.
+char *getCarContent(Car *car, CarField field)
+{
+    char *string = calloc(1, MAX_STRING_SIZE);
+    switch (field)
+    {
+    case PREFIXO:
+        strncpy(string, car->prefixo, sizeof(car->prefixo));
+        break;
+
+    case DATA:
+        strncpy(string, car->data, sizeof(car->data));
+        tranformDate(string);
+        break;
+
+    case QTD_LUGARES:
+        snprintf(string, MAX_STRING_SIZE, "%d", car->quantidadeLugares);
+        break;
+
+    case COD_LINHA_CAR:
+        snprintf(string, MAX_STRING_SIZE, "%d", car->codLinha);
+        break;
+
+    case MODELO:
+        strncpy(string, car->modelo, car->tamanhoModelo);
+        break;
+
+    case CATEGORIA:
+        strncpy(string, car->categoria, car->tamanhoCategoria);
+        break;
+
+    default:
+        free(string);
+        return NULL;
+    }
+    if (string[0] == 0 || (string[0] == '-' && string[1] == '1'))
+    {
+        strcpy(string, NULL_MESSAGE);
+    }
+    return string;
+}
+
+// Get a new string with the field description of a determined field of a CarHeader.
+// The string must be freed by the user.
+char *getHeaderDescription(CarHeader *header, CarField field)
+{
+    char *string = calloc(1, MAX_STRING_SIZE);
+    switch (field)
+    {
+    case PREFIXO:
+        strncpy(string, header->descrevePrefixo, sizeof(header->descrevePrefixo));
+        break;
+
+    case DATA:
+        strncpy(string, header->descreveData, sizeof(header->descreveData));
+        break;
+
+    case QTD_LUGARES:
+        strncpy(string, header->descreveLugares, sizeof(header->descreveLugares));
+        break;
+
+    case COD_LINHA_CAR:
+        strncpy(string, header->descreveLinha, sizeof(header->descreveLinha));
+        break;
+
+    case MODELO:
+        strncpy(string, header->descreveModelo, sizeof(header->descreveModelo));
+        break;
+
+    case CATEGORIA:
+        strncpy(string, header->descreveCategoria, sizeof(header->descreveCategoria));
+        break;
+
+    default:
+        free(string);
+        return NULL;
+    }
+    if (string[0] == 0 || (string[0] == '-' && string[1] == '1'))
+    {
+        strcpy(string, NULL_MESSAGE);
+    }
+    return string;
+}
+
+// Prints a single field from a Car
+void printField(CarHeader *header, Car *car, CarField field)
+{
+    char *fieldContent = getCarContent(car, field);        // get the value of the field
+    char *fieldName = getHeaderDescription(header, field); // get the description of the field
+    printf("%s: %s\n", fieldName, fieldContent);           // prints the field
+    free(fieldContent);
+    free(fieldName);
+}
+
 // Prints Car. Checks if Car is logically removed and also deals with nulls.
 int printCar(Car *car, CarHeader *header)
 {
     // verify id the car is removed
     if (car->removido == REMOVED)
         return 0;
+
+    // print the fields required by the specification
+    printField(header, car, PREFIXO);
+    printField(header, car, MODELO);
+    printField(header, car, CATEGORIA);
+    printField(header, car, DATA);
+    printField(header, car, QTD_LUGARES);
+
     return 1;
 }
 

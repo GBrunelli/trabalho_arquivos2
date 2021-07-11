@@ -17,6 +17,9 @@
 // Consistent file
 #define STATUS_CONSISTENT '1'
 
+// When you don't want a specific offset while updating
+#define NO_OFFSET -1
+
 // Possible file sources.
 typedef enum _Source
 {

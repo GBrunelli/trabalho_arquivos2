@@ -93,10 +93,10 @@ void _writeDisckPage(Index* index, DiskPage* page)
     fwrite(&page->P[4], 4, 1, indexFile);
 }
 
-Index *openIndex(char *indexFileName)
+Index *openIndex(FILE* indexFile)
 {
     Index *index = malloc(sizeof(Index));
-    index->indexFile = fopen(indexFileName, "rb+");
+    index->indexFile = indexFile;
     if(!index->indexFile)
     {
         free(index);
@@ -158,6 +158,10 @@ Register *createRegister(int32_t C, int64_t Pr)
     reg->C = C;
     reg->Pr = Pr;
     return reg;
+}
+
+int64_t getPR(Register* reg) {
+    return reg->Pr;
 }
 
 void updateRegister(Register* reg, int32_t C, int64_t Pr) {

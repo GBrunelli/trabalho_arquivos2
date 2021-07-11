@@ -55,7 +55,7 @@ FuncStatus printLine(Line *l, LineHeader *lh);
 // Updates a Line with data from a specific source.
 // Currently supported sources: BIN, CLI, CSV
 // If updating from CLI, file should be NULL.
-int64_t updateLine(Line *l, FILE *file, Source from);
+int64_t updateLine(Line *l, FILE *file, Source from, int64_t pre_offset);
 
 // Writes a Line to a specific source
 // Currently only supports BIN files.

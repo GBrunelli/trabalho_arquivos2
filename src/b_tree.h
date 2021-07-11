@@ -26,7 +26,7 @@ Index *createIndex(FILE* idx);
 /**
  * Opens an index file, and set its status to inconsistent
 */
-Index *openIndex(char *indexFileName);
+Index *openIndex(FILE* indexFile);
 
 /**
  * Closes the index file, and set its status to consistent
@@ -47,6 +47,11 @@ void updateRegister(Register* r, int32_t C, int64_t Pr);
  * Retuns an index register with key C and value Pr
 */
 Register *createRegister(int32_t C, int64_t Pr);
+
+/**
+ * Retuns the Pr of an specific register
+*/
+int64_t getPR(Register* reg);
 
 /**
  * Insert a new register in the index file

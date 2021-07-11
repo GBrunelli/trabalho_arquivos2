@@ -38,7 +38,7 @@ Car *newCar();
 
 // Reads a car at the current file pointer from a source file. For bin files, if
 // the pointer is pointing at the header, it will read the first car in the file.
-int64_t readCar(Car *c, FILE *file, Source From);
+int64_t readCar(Car *c, FILE *file, Source From, int64_t pre_offset);
 
 // Prints Car. Checks if Car is logically removed and also deals with nulls.
 int printCar(Car *car, CarHeader *header);

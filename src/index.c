@@ -21,7 +21,7 @@ void indexLines() {
     
     int offset = 0;
     for (int rrn = 0; rrn < nreg; rrn++) {
-        offset = updateLine(l, binFile, BIN);
+        offset = updateLine(l, binFile, BIN, NO_OFFSET);
         if (!lineLogicallyRemoved(l)) {
             updateRegister(reg, getLineIndex(l), offset);
             insertRegister(index, reg);
@@ -53,7 +53,7 @@ void indexCars() {
 
     int offset = 0;
     for (int rrn = 0; rrn < nreg; rrn++) {
-        offset = readCar(c, binFile, BIN);
+        offset = readCar(c, binFile, BIN, NO_OFFSET);
         if (!carLogicallyRemoved(c)) {
             updateRegister(reg, getCarIndex(c), offset);
             insertRegister(index, reg);

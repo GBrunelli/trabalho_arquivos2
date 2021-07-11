@@ -170,7 +170,7 @@ Line *newLine()
 }
 
 // Update Line from BIN file, uses current offset by default
-int64_t _updateLineFromBin(Line *l, FILE *file)
+int64_t _updateLineFromBin(Line *l, FILE *file, int64_t pre_offset)
 {
     if (l == NULL)
         return -1;
@@ -180,6 +180,10 @@ int64_t _updateLineFromBin(Line *l, FILE *file)
     // if the pointer is pointing at the header, set the pointer for the first car in the file
     long long position = ftell(file);
     long long offset = position < LINE_HEADER_OFFSET ? LINE_HEADER_OFFSET : position;
+    
+    // Checking if offset was provided
+    offset = pre_offset != NO_OFFSET ? pre_offset : offset;
+
     fseek(file, offset, SEEK_SET);
 
     fread(&l->removido, sizeof(l->removido), 1, file);
@@ -244,12 +248,12 @@ int64_t _updateLineFromCLI(Line *l)
     return 1;
 }
 
-int64_t updateLine(Line *l, FILE *file, Source from)
+int64_t updateLine(Line *l, FILE *file, Source from, int64_t pre_offset)
 {
     switch (from)
     {
     case BIN:
-        return _updateLineFromBin(l, file);
+        return _updateLineFromBin(l, file, pre_offset);
     case CLI:
         return _updateLineFromCLI(l);
     }
