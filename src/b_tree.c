@@ -78,7 +78,8 @@ void _writeDiskPage(Index* index, DiskPage* page)
     fwrite(&folha, sizeof(folha), 1, indexFile);
     fwrite(&page->nroChavesIndexadas, 4, 1, indexFile);
     fwrite(&page->RRNdoNo, 4, 1, indexFile);
-    int notFilled = -1;
+    int32_t notFilled32 = -1;
+    int64_t notFilled64 = -1;
 
     for (int i = 0; i < REGISTERS_PER_PAGE; i++)
     {
@@ -90,8 +91,8 @@ void _writeDiskPage(Index* index, DiskPage* page)
         }
         else
         {
-            fwrite(&notFilled, 4, 1, indexFile);
-            fwrite(&notFilled, 8, 1, indexFile);
+            fwrite(&notFilled32, 4, 1, indexFile);
+            fwrite(&notFilled64, 8, 1, indexFile);
         }
             
     }
@@ -382,7 +383,7 @@ DiskPage *_getPage(Index *index, int32_t rnn)
     for (int i = 0; i < nPages; i++)
     {
         if(index->savedPages[i]->RRNdoNo == rnn)
-            index->savedPages[i];
+            return index->savedPages[i];
     }
     // if the disk page is not on memory, recover it
     DiskPage *page = malloc(sizeof(DiskPage));
