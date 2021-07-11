@@ -291,7 +291,7 @@ Result _insert(Index *index,
                 for (int i = n; i > pos; i++)
                 {
                     currentPage->regs[i] = currentPage->regs[i-1];
-                    currentPage->P[i+1] - currentPage->P[i];
+                    currentPage->P[i+1] = currentPage->P[i];
                 }
             }
             currentPage->regs[pos] = (*promoReg);
