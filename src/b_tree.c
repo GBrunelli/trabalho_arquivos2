@@ -89,7 +89,11 @@ void _writeDiskPage(Index* index, DiskPage* page)
             fwrite(&page->regs[i]->Pr, 8, 1, indexFile);
         }
         else
-            fwrite(&notFilled, 12, 1, indexFile);
+        {
+            fwrite(&notFilled, 4, 1, indexFile);
+            fwrite(&notFilled, 8, 1, indexFile);
+        }
+            
     }
     fwrite(&page->P[4], 4, 1, indexFile);
 }
@@ -123,7 +127,7 @@ Index *createIndex(FILE* idx)
     index->indexFile = idx;
     index->header = malloc(sizeof(IndexHeader));
     index->header->noRaiz = -1;
-    index->header->RRNproxNo = 0;
+    index->header->RRNproxNo = -1;
     index->header->status = false;
     index->savedPages = NULL;
     index->nSavedPages = 0;
@@ -185,7 +189,6 @@ void freeRegister(Register *r) {
 DiskPage *_createDiskPage(Index *index, bool folha)
 {
     DiskPage *page = malloc(sizeof(DiskPage));
-    //page->regs = calloc(1, sizeof(Register*)*REGISTERS_PER_PAGE);
     page->folha = folha;
     page->nroChavesIndexadas = 1;
     for (int i = 0; i < ORDER; i++)
@@ -207,7 +210,7 @@ Result insertRegister(Index *index, Register *reg)
 
     if(index->header->noRaiz == -1)
     {
-        index->header->noRaiz = 1; 
+        index->header->noRaiz = 0; 
         DiskPage *page = _createDiskPage(index, true);
         page->regs[0] = regcpy;
         _saveDiskPageInMemory(index, page);
@@ -390,7 +393,7 @@ DiskPage *_getPage(Index *index, int32_t rnn)
     for (int i = 0; i < ORDER; i++)
         page->P[i] = -1;
 
-    fseek(index->indexFile, rnn*DISK_PAGE_SIZE, SEEK_SET);
+    fseek(index->indexFile, (rnn+1)*DISK_PAGE_SIZE, SEEK_SET);
 
     char folha;
     int32_t nroChavesIndexadas;
