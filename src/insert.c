@@ -31,16 +31,13 @@ void insertLines()
         updateLine(l, NULL, CLI, NO_OFFSET);
         int indexedField = getLineIndex(l);
 
-        // Checking if indexedField is not already in use
-        if (searchRegister(index, indexedField, &reg) != FOUND) {
-            // Writing data to file
-            offset = writeLine(l, binFile, BIN);
+        // Writing data to file
+        offset = writeLine(l, binFile, BIN);
 
-            // Inserting index into B Tree
-            if (!lineLogicallyRemoved(l)) {
-                updateRegister(reg, indexedField, offset);
-                insertRegister(index, reg);
-            }
+        // Inserting index into B Tree
+        if (!lineLogicallyRemoved(l)) {
+            updateRegister(reg, indexedField, offset);
+            insertRegister(index, reg);
         }
     }
     freeLine(l);
@@ -83,16 +80,13 @@ void insertCars()
         readCar(c, NULL, CLI, NO_OFFSET);
         int indexedField = getCarIndex(c);
 
-        // Checking if indexedField is not already in use
-        if (searchRegister(index, indexedField, &reg) != FOUND) {
-            // Writing data to file
-            offset = writeCar(c, binFile, BIN);
+        // Writing data to file
+        offset = writeCar(c, binFile, BIN);
 
-            // Inserting index into B Tree
-            if (!carLogicallyRemoved(c)) {
-                updateRegister(reg, indexedField, offset);
-                insertRegister(index, reg);
-            }
+        // Inserting index into B Tree
+        if (!carLogicallyRemoved(c)) {
+            updateRegister(reg, indexedField, offset);
+            insertRegister(index, reg);
         }
     }
     freeCar(c);
