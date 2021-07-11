@@ -23,12 +23,10 @@ void searchLine(void)
 
     // If no result was found, finish program
     if (result == NOT_FOUND)
-    {
         printf("Registro inexistente.\n");
-    }
     else
-    {
-        // Otherwise print line using Pr obatined from the Index
+    {   // Otherwise print line using Pr obatined from the Index
+        
         LineHeader *lh = newLineHeader();
         Line *l = newLine();
 
@@ -68,12 +66,9 @@ void searchCar(void)
 
     // If no result was found, finish program
     if (result == NOT_FOUND)
-    {
         printf("Registro inexistente.\n");
-    }
     else
-    {
-        // Otherwise print line using Pr obatined from the Index
+    {   // Otherwise print line using Pr obatined from the Index
         CarHeader *ch = newCarHeader();
         Car *c = newCar();
 

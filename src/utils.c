@@ -163,7 +163,6 @@ int convertePrefixo(char *str)
     return result;
 }
 
-// Remove "Quotation Marks" from a string.
 void removeQuotations(char *str)
 {
     // Checking whether string has quotation marks
@@ -179,7 +178,6 @@ void removeQuotations(char *str)
     str[len - 2] = '\0';
 }
 
-// Shifts a string to left.
 void leftShift(char *string, int len)
 {
     int i;

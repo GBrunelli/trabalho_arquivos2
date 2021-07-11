@@ -10,7 +10,7 @@ int main(void)
     int n_routine = 0;
     scanf("%d", &n_routine);
 
-    // Switching for correct routine
+    // Switching for correct task
     switch (n_routine)
     {
     case 9:

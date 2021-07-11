@@ -20,6 +20,7 @@ void indexLines()
     Line *l = newLine();
     Register *reg = newRegister();
 
+    // Getting each line, then inserting its hash and offset into the index
     int offset = 0;
     for (int rrn = 0; rrn < nreg; rrn++)
     {
@@ -31,6 +32,7 @@ void indexLines()
         }
     }
 
+    // Closing files
     freeLine(l);
     freeRegister(reg);
     closeIndex(index);
@@ -55,6 +57,7 @@ void indexCars()
     Car *c = newCar();
     Register *reg = newRegister();
 
+    // Getting each car, then inserting its hash and offset into the index
     int offset = 0;
     for (int rrn = 0; rrn < nreg; rrn++)
     {
@@ -66,6 +69,7 @@ void indexCars()
         }
     }
 
+    // Closing files
     freeCar(c);
     freeRegister(reg);
     closeIndex(index);

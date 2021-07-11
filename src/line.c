@@ -120,6 +120,7 @@ bool checkLineHeaderIntegrity(LineHeader *lh)
     }
 }
 
+// Writing new data from LH into FILE. Overwrites old header
 void _overwriteLineHeaderToBin(LineHeader *lh, FILE *file)
 {
     // set the file pointer to the correct position
@@ -329,7 +330,6 @@ int32_t getLineIndex(Line *l)
     return l->codLinha;
 }
 
-// Prints Car. Checks if Car is logically removed and also deals with nulls.
 bool lineLogicallyRemoved(Line *l)
 {
     if (l->removido == REMOVED)

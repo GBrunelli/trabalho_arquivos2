@@ -40,11 +40,12 @@ void insertLines()
             insertRegister(index, reg);
         }
     }
+    // Freeing data used only in loop above
     freeLine(l);
     freeRegister(reg);
     closeIndex(index);
 
-    // Finishing program. Freeing all memory
+    // Finishing program. Freeing all memory and setting file status as consistent
     setLineFileStatus(binFile, STATUS_CONSISTENT);
     fclose(binFile);
 
@@ -72,7 +73,6 @@ void insertCars()
     Index *index = openIndex(indexFile);
 
     fseek(binFile, 0, SEEK_END);
-
     int offset = 0;
     while (nRegisters--)
     {
@@ -90,11 +90,12 @@ void insertCars()
             insertRegister(index, reg);
         }
     }
+    // Freeing data used only in loop above
     freeCar(c);
     freeRegister(reg);
     closeIndex(index);
 
-    // Finishing program. Freeing all memory
+    // Finishing program. Freeing all memory and setting file status as consistent
     setCarFileStatus(binFile, STATUS_CONSISTENT);
     fclose(binFile);
 

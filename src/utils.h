@@ -39,22 +39,37 @@ typedef enum _FuncStatus
 } FuncStatus;
 
 // Get the month, given its number
+// e.g. 1 = January, 12 = December...
 void getMonthName(char *monthName, int month);
 
 // Transform a date of format "YYYY-MM-DD" to "_DAY de _MONTH_NAME_ de _YEAR_".
 // Example: "2010-05-21" -> "21 de maio de 2021".
 void tranformDate(char *date);
 
+// Function used on all routines. Opens both the binary data file and the index file.
+// Also checks the integrity of each file. Gives an error if one or both has status == '0'
 void openFiles(FILE **bin, char *binFileName, char *binMode, FILE **index, char *indexFileName, char *indexMode, bool (*integrityChecker)(FILE *));
 
+// Remove "Quotation Marks" from a string.
 void removeQuotations(char *str);
+
+// Shifts a string to left by 1 byte.
 void leftShift(char *string, int len);
+
+// Checks if string is equal to "NULO"
 int isNULO(char *string);
+
+// Fills string with '@' characters up to len
 void fillWithGarbage(char *string, int len);
 
-// Functions given by the Professor.
+// Function given by the professor to convert prefixo into a hash that can be used by B-tree.
 int convertePrefixo(char *str);
+
+// Function given by the professor that calculates a value based on files bytes. Used by run.codes.
 void binarioNaTela(char *nomeArquivoBinario);
+
+// Function given by the professor that scans a "quoted string" like this.
+// Removes the quotes from the string. Also checks for NULO
 void scan_quote_string(char *str);
 
 #endif

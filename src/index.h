@@ -3,7 +3,10 @@
 
 #include "project.h"
 
-void indexLines(void);
+// 9th task - Creating index for cars through B Tree
 void indexCars(void);
+
+// 10th task - Creating index for lines through B Tree
+void indexLines(void);
 
 #endif

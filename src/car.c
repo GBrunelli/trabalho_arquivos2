@@ -44,7 +44,6 @@ struct _Car
 
 /* ## Functions to deal with Car headers ## */
 
-// Gets the sum of active and removed register in the bin file
 int getCarNRegisters(FILE *file)
 {
     CarHeader *header = newCarHeader();
@@ -54,7 +53,6 @@ int getCarNRegisters(FILE *file)
     return n;
 }
 
-// Alocates memory and initializes the struct CarHeader
 CarHeader *newCarHeader()
 {
     CarHeader *carHeader = calloc(1, sizeof(CarHeader));
@@ -82,8 +80,6 @@ CarHeader *_getCarHeaderFromBin(CarHeader *carHeader, FILE *file)
     return carHeader;
 }
 
-// Get all Header information from a specific source file.
-// Currently supported sources: BIN, CSV
 CarHeader *getCarHeader(CarHeader *carHeader, FILE *file, Source from)
 {
     switch (from)
@@ -116,8 +112,6 @@ void _writeCarHeaderToBin(CarHeader *carHeader, FILE *file)
     fwrite(&carHeader->descreveCategoria, sizeof(carHeader->descreveCategoria), 1, file);
 }
 
-// Writes a CarHeader to a specific source
-// Currently only supports BIN files.
 void writeCarHeader(CarHeader *carHeader, FILE *file, Source from)
 {
     switch (from)
@@ -131,7 +125,6 @@ void writeCarHeader(CarHeader *carHeader, FILE *file, Source from)
     }
 }
 
-// Set the status of a file as consistent '1' or inconsistent '0'
 void setCarFileStatus(FILE *file, char c)
 {
     // if the char is valid
@@ -155,9 +148,6 @@ bool checkCarFileIntegrity(FILE *bin)
     return integrity;
 }
 
-// Verify if the file is consistent.
-// Returns 0 if it is inconsistent, or a value
-// different than zero if it is consistent
 int checkCarHeaderIntegrity(CarHeader *header)
 {
     if (header->status == STATUS_CONSISTENT)
@@ -167,7 +157,6 @@ int checkCarHeaderIntegrity(CarHeader *header)
 
 /* ## Basic Car functions ## */
 
-// Alocates memory and initializes the struct Car
 Car *newCar()
 {
     Car *car = malloc(sizeof(struct _Car));
@@ -209,7 +198,7 @@ int64_t _readCarFromBIN(Car *car, FILE *file, int64_t customOffset)
     return offset;
 }
 
-// Reads the next car from the stantart input
+// Reads the next car from the standard input
 int64_t _readCarFromCLI(Car *car)
 {
     // Initializing zeroed char arrays and then reading from stdinput
@@ -281,8 +270,6 @@ int64_t _readCarFromCLI(Car *car)
     return -1;
 }
 
-// Reads a car at the current file pointer from a source file. For bin files, if
-// the pointer is pointing at the header, it will read the first car in the file.
 int64_t readCar(Car *car, FILE *file, Source from, int64_t customOffset)
 {
     switch (from)
@@ -299,38 +286,11 @@ int64_t readCar(Car *car, FILE *file, Source from, int64_t customOffset)
     return -1;
 }
 
-CarField getCarField(char *providedField)
-{
-    if (!strcmp(providedField, "prefixo"))
-    {
-        return PREFIXO;
-    }
-    if (!strcmp(providedField, "data"))
-    {
-        return DATA;
-    }
-    if (!strcmp(providedField, "quantidadeLugares"))
-    {
-        return QTD_LUGARES;
-    }
-    if (!strcmp(providedField, "linha"))
-    {
-        return COD_LINHA_CAR;
-    }
-    if (!strcmp(providedField, "modelo"))
-    {
-        return MODELO;
-    }
-    if (!strcmp(providedField, "categoria"))
-    {
-        return CATEGORIA;
-    }
-    return 0;
-}
+
 
 // Get a new string with value of the field of a Car.
 // The string must be freed by the user.
-char *getCarContent(Car *car, CarField field)
+char *_getCarContent(Car *car, CarField field)
 {
     char *string = calloc(1, MAX_STRING_SIZE);
     switch (field)
@@ -373,7 +333,7 @@ char *getCarContent(Car *car, CarField field)
 
 // Get a new string with the field description of a determined field of a CarHeader.
 // The string must be freed by the user.
-char *getHeaderDescription(CarHeader *header, CarField field)
+char *_getHeaderDescription(CarHeader *header, CarField field)
 {
     char *string = calloc(1, MAX_STRING_SIZE);
     switch (field)
@@ -414,16 +374,15 @@ char *getHeaderDescription(CarHeader *header, CarField field)
 }
 
 // Prints a single field from a Car
-void printField(CarHeader *header, Car *car, CarField field)
+void _printField(CarHeader *header, Car *car, CarField field)
 {
-    char *fieldContent = getCarContent(car, field);        // get the value of the field
-    char *fieldName = getHeaderDescription(header, field); // get the description of the field
+    char *fieldContent = _getCarContent(car, field);        // get the value of the field
+    char *fieldName = _getHeaderDescription(header, field); // get the description of the field
     printf("%s: %s\n", fieldName, fieldContent);           // prints the field
     free(fieldContent);
     free(fieldName);
 }
 
-// Prints Car. Checks if Car is logically removed and also deals with nulls.
 int printCar(Car *car, CarHeader *header)
 {
     // verify id the car is removed
@@ -431,17 +390,16 @@ int printCar(Car *car, CarHeader *header)
         return 0;
 
     // print the fields required by the specification
-    printField(header, car, PREFIXO);
-    printField(header, car, MODELO);
-    printField(header, car, CATEGORIA);
-    printField(header, car, DATA);
-    printField(header, car, QTD_LUGARES);
+    _printField(header, car, PREFIXO);
+    _printField(header, car, MODELO);
+    _printField(header, car, CATEGORIA);
+    _printField(header, car, DATA);
+    _printField(header, car, QTD_LUGARES);
     printf("\n");
 
     return 1;
 }
 
-// Returns the index (prefixo) transformed into an integer
 int32_t getCarIndex(Car *c)
 {
     return convertePrefixo(c->prefixo);
@@ -454,13 +412,11 @@ bool carLogicallyRemoved(Car *c)
     return false;
 }
 
-// Free all memory associated with a Car.
 void freeCar(Car *c)
 {
     free(c);
 }
 
-// Free all memory associated with a CarHeader.
 void freeCarHeader(CarHeader *carHeader)
 {
     free(carHeader);
@@ -510,8 +466,6 @@ int64_t _writeCarToBin(Car *car, FILE *file)
     return byteOffset;
 }
 
-// Writes a Car to a specific source
-// Currently only supports BIN files.
 int64_t writeCar(Car *car, FILE *file, Source from)
 {
     switch (from)

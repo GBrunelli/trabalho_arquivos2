@@ -67,8 +67,6 @@ int32_t getLineIndex(Line *l);
 // Checks whether a line is logically removed
 bool lineLogicallyRemoved(Line *l);
 
-/* ## Functions related to searching using a specific struct field ## */
-
 // Based on an specific searched value, check whether the current line matches
 bool checkIfLineMatches(Line *l, char *index);
 
